@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3+Market Games - Marketplace Game Terlengkap</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto:wght@300;400;500;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            color: #e0e0e0;
+            overflow-x: hidden;
+        }
+        
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(45deg, #00d4ff, #0099cc, #00bfff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .neon-glow {
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+        
+        .sidebar {
+            background: linear-gradient(180deg, rgba(26, 26, 46, 0.95) 0%, rgba(22, 33, 62, 0.95) 100%);
+            backdrop-filter: blur(20px);
+        }
+        
+        .chat-bubble {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.2) 0%, rgba(0, 153, 204, 0.2) 100%);
+            border-left: 4px solid #00d4ff;
+        }
+        
+        .animate-pulse-slow {
+            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+        
+        .scrollbar-thin::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .scrollbar-thin::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="fixed inset-0 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 z-50 flex items-center justify-center">
+        <div class="text-center">
+            <div class="w-24 h-24 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <div class="gradient-text text-2xl font-bold font-orbitron tracking-wider animate-pulse-slow">
+                3+MARKET GAMES
+            </div>
+            <div class="text-sm text-gray-400 mt-2 font-orbitron">Loading Marketplace...</div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="app" class="hidden min-h-screen">
+        <!-- Top Navbar -->
+        <div class="glass fixed top-0 left-0 right-0 z-40 px-4 py-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <button id="mobileMenuBtn" class="lg:hidden p-2 rounded-lg hover:bg-white/10 transition-all">
+                        <i class="fas fa-bars text-xl text-cyan-400"></i>
+                    </button>
+                    <h1 class="gradient-text text-xl font-bold font-orbitron tracking-wider">
+                        3+MARKET GAMES
+                    </h1>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <div id="coinBalance" class="px-3 py-1 glass text-sm rounded-full font-semibold">
+                        <i class="fas fa-coins mr-1 text-yellow-400"></i>
+                        <span id="coinAmount">0</span> Koin
+                    </div>
+                    <div class="relative">
+                        <button id="notificationBtn" class="p-2 rounded-lg hover:bg-white/10 transition-all relative">
+                            <i class="fas fa-bell text-lg"></i>
+                            <span id="notificationBadge" class="absolute -top-1 -right-1 bg-red-500 text-xs w-5 h-5 rounded-full flex items-center justify-center hidden">0</span>
+                        </button>
+                    </div>
+                    <button id="profileBtn" class="w-10 h-10 glass rounded-full flex items-center justify-center">
+                        <i class="fas fa-user"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex h-screen pt-16">
+            <!-- Sidebar -->
+            <div id="sidebar" class="sidebar w-64 fixed inset-y-16 left-0 z-30 h-[calc(100vh-4rem)] transform -translate-x-full lg:translate-x-0 transition-transform duration-300 scrollbar-thin overflow-y-auto">
+                <div class="p-6 space-y-2">
+                    <div class="flex items-center space-x-3 mb-6 p-3 glass rounded-xl">
+                        <div class="w-10 h-10 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-store text-white font-bold"></i>
+                        </div>
+                        <div>
+                            <div id="userName" class="font-semibold text-sm"></div>
+                            <div id="userRole" class="text-xs text-gray-400 capitalize"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Navigation Menu -->
+                    <div class="space-y-1">
+                        <button class="nav-btn w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-white/10 transition-all group" data-page="home">
+                            <i class="fas fa-home text-lg group-hover:text-cyan-400"></i>
+                            <span class="font-medium">Home</span>
+                        </button>
+                        <button class="nav-btn w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-white/10 transition-all group" data-page="orders">
+                            <i class="fas fa-shopping-bag text-lg group-hover:text-cyan-400"></i>
+                            <span class="font-medium">Pesanan Saya</span>
+                        </button>
+                        <button class="nav-btn w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-white/10 transition-all group" data-page="chat">
+                            <i class="fas fa-comments text-lg group-hover:text-cyan-400"></i>
+                            <span class="font-medium">Chat</span>
+                        </button>
+                        <button class="nav-btn w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-white/10 transition-all group" data-page="coins">
+                            <i class="fas fa-coins text-lg group-hover:text-yellow-400"></i>
+                            <span class="font-medium">Koin & Tukar</span>
+                        </button>
+                        <button class="nav-btn w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-white/10 transition-all group" data-page="groups">
+                            <i class="fas fa-users text-lg group-hover:text-cyan-400"></i>
+                            <span class="font-medium">Grup Chat</span>
+                        </button>
+                        <button class="nav-btn w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-white/10 transition-all group" data-page="report">
+                            <i class="fas fa-exclamation-triangle text-lg group-hover:text-orange-400"></i>
+                            <span class="font-medium">Lapor</span>
+                        </button>
+                    </div>
+
+                    <!-- Seller Section -->
+                    <div id="sellerSection" class="space-y-1 hidden">
+                        <div class="text-xs text-gray-400 uppercase tracking-wider font-semibold px-3 py-2">Toko Saya</div>
+                        <button class="nav-btn w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-white/10 transition-all group" data-page="my-store">
+                            <i class="fas fa-store text-lg group-hover:text-cyan-400"></i>
+                            <span class="font-medium">Toko Saya</span>
+                        </button>
+                        <button class="nav-btn w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-white/10 transition-all group" data-page="add-product">
+                            <i class="fas fa-plus-circle text-lg group-hover:text-green-400"></i>
+                            <span class="font-medium">Tambah Produk</span>
+                        </button>
+                        <button class="nav-btn w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-white/10 transition-all group" data-page="payment-methods">
+                            <i class="fas fa-credit-card text-lg group-hover:text-purple-400"></i>
+                            <span class="font-medium">Metode Bayar</span>
+                        </button>
+                    </div>
+
+                    <!-- Admin Section -->
+                    <div id="adminSection" class="space-y-1 hidden">
+                        <div class="text-xs text-gray-400 uppercase tracking-wider font-semibold px-3 py-2">Admin Panel</div>
+                        <button class="nav-btn w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-white/10 transition-all group" data-page="admin-dashboard">
+                            <i class="fas fa-tachometer-alt text-lg group-hover:text-cyan-400"></i>
+                            <span class="font-medium">Dashboard</span>
+                        </button>
+                        <button class="nav-btn w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-white/10 transition-all group" data-page="admin-stores">
+                            <i class="fas fa-stores text-lg group-hover:text-cyan-400"></i>
+                            <span class="font-medium">Kelola Toko</span>
+                        </button>
+                        <button class="nav-btn w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-white/10 transition-all group" data-page="coin-products">
+                            <i class="fas fa-coins text-lg group-hover:text-yellow-400"></i>
+                            <span class="font-medium">Produk Koin</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile Bottom Nav -->
+            <div id="mobileBottomNav" class="lg:hidden fixed bottom-0 left-0 right-0 glass z-30 p-2">
+                <div class="flex justify-around">
+                    <button class="mobile-nav-btn flex flex-col items-center p-2 rounded-lg hover:bg-white/10 transition-all" data-page="home">
+                        <i class="fas fa-home text-lg mb-1"></i>
+                        <span class="text-xs">Home</span>
+                    </button>
+                    <button class="mobile-nav-btn flex flex-col items-center p-2 rounded-lg hover:bg-white/10 transition-all" data-page="orders">
+                        <i class="fas fa-shopping-bag text-lg mb-1"></i>
+                        <span class="text-xs">Pesanan</span>
+                    </button>
+                    <button class="mobile-nav-btn flex flex-col items-center p-2 rounded-lg hover:bg-white/10 transition-all" data-page="chat">
+                        <i class="fas fa-comments text-lg mb-1"></i>
+                        <span class="text-xs">Chat</span>
+                    </button>
+                    <button class="mobile-nav-btn flex flex-col items-center p-2 rounded-lg hover:bg-white/10 transition-all" data-page="coins">
+                        <i class="fas fa-coins text-lg mb-1 text-yellow-400"></i>
+                        <span class="text-xs">Koin</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="flex-1 ml-0 lg:ml-64 pt-4 pb-20 lg:pb-4 px-4 lg:px-8 overflow-y-auto scrollbar-thin h-[calc(100vh-4rem)]">
+                <!-- Pages Container -->
+                <div id="pagesContainer"></div>
+            </div>
+        </div>
+
+        <!-- Profile Modal -->
+        <div id="profileModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+            <div class="glass max-w-md w-full max-h-[90vh] overflow-y-auto rounded-2xl p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="gradient-text text-2xl font-bold font-orbitron">Profil</h2>
+                    <button id="closeProfileModal" class="p-2 hover:bg-white/10 rounded-xl">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="profileContent" class="space-y-4"></div>
+                <div class="flex space-x-3 mt-6 pt-6 border-t border-white/10">
+                    <button id="logoutBtn" class="flex-1 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white py-2 px-4 rounded-xl font-semibold transition-all">
+                        Keluar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Modal -->
+        <div id="chatModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden">
+            <div class="glass absolute right-4 top-20 lg:top-24 w-full max-w-md h-[calc(100vh-8rem)] rounded-2xl overflow-hidden">
+                <div class="p-4 border-b border-white/10 flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div id="chatAvatar" class="w-10 h-10 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-user text-white"></i>
+                        </div>
+                        <div>
+                            <div id="chatTitle" class="font-semibold"></div>
+                            <div id="chatSubtitle" class="text-sm text-gray-400"></div>
+                        </div>
+                    </div>
+                    <button id="closeChatModal" class="p-2 hover:bg-white/10 rounded-xl">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="chatMessages" class="h-[calc(100%-140px)] p-4 space-y-3 overflow-y-auto scrollbar-thin"></div>
+                <div class="p-4 border-t border-white/10">
+                    <div class="flex space-x-2">
+                        <input id="chatInput" type="text" placeholder="Ketik pesan..." class="flex-1 glass p-3 rounded-xl focus:outline-none focus:ring-2 ring-cyan-500">
+                        <input id="imageInput" type="file" accept="image/*" class="hidden">
+                        <button id="sendImageBtn" class="glass p-3 rounded-xl hover:bg-white/10">
+                            <i class="fas fa-image"></i>
+                        </button>
+                        <button id="sendMessageBtn" class="glass p-3 rounded-xl hover:bg-white/10">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification Modal -->
+        <div id="notificationModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+            <div class="glass max-w-md w-full max-h-[80vh] overflow-y-auto rounded-2xl">
+                <div class="p-6 border-b border-white/10">
+                    <h2 class="gradient-text text-xl font-bold font-orbitron mb-2">Notifikasi</h2>
+                    <div class="text-sm text-gray-400">Riwayat pemberitahuan terbaru</div>
+                </div>
+                <div id="notificationList" class="p-6 space-y-3 max-h-96 overflow-y-auto"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global State & Database
+        class MarketGamesApp {
+            constructor() {
+                this.db = {
+                    users: [],
+                    stores: [],
+                    products: [],
+                    orders: [],
+                    chats: [],
+                    groups: [],
+                    coinProducts: [],
+                    coinRequests: [],
+                    notifications: [],
+                    payments: [],
+                    auctions: [],
+                    barters: [],
+                    reports: [],
+                    adminMessages: [],
+                    broadcasts: []
+                };
+                this.currentUser = null;
+                this.currentPage = 'home';
+                this.currentChat = null;
+                this.init();
+            }
+
+            init() {
+                this.loadData();
+                this.bindEvents();
+                this.checkAuth();
+                this.updateUI();
+                setTimeout(() => {
+                    document.getElementById('loadingScreen').classList.add('hidden');
+                    document.getElementById('app').classList.remove('hidden');
+                }, 2000);
+            }
+
+            loadData() {
+                Object.keys(this.db).forEach(key => {
+                    const data = localStorage.getItem(`marketgames_${key}`);
+                    if (data) this.db[key] = JSON.parse(data);
+                });
+                this.initDemoData();
+            }
+
+            saveData() {
+                Object.keys(this.db).forEach(key => {
+                    localStorage.setItem(`marketgames_${key}`, JSON.stringify(this.db[key]));
+                });
+            }
+
+            initDemoData() {
+                if (this.db.users.length === 0) {
+                    // Demo users
+                    this.db.users = [
+                        { id: 'admin', username: 'admin3market', password: 'admin123', role: 'admin', name: 'Admin 3Market', email: 'admin@3market.com', coins: 10000, blocked: false },
+                        { id: 'buyer1', name: 'Budi Gamer', email: 'budi@email.com', password: '123456', role: 'buyer', coins: 150, phone: '+628123456789', verified: true },
+                        { id: 'seller1', name: 'ProSeller', email: 'seller@email.com', password: '123456', role: 'seller', coins: 500, phone: '+628987654321', verified: true }
+                    ];
+                    
+                    // Demo stores
+                    this.db.stores = [
+                        { id: 'store1', ownerId: 'seller1', name: 'ProGaming Store', blocked: false, paymentMethods: [] }
+                    ];
+                    
+                    // Demo products
+                    this.db.products = [
+                        { id: 'prod1', storeId: 'store1', name: 'Akun ML Rank Mythic', game: 'Mobile Legends', type: 'account', stock: 5, price: 150000, description: 'Akun ML full skin, rank mythic glory', images: ['https://via.placeholder.com/300x200/00d4ff/ffffff?text=ML+Account'], createdAt: Date.now() },
+                        { id: 'prod2', storeId: 'store1', name: 'Jasa Rank FF', game: 'Free Fire', type: 'service', stock: 10, price: 75000, description: 'Jasa push rank FF sampai Grandmaster', images: ['https://via.placeholder.com/300x200/0099cc/ffffff?text=FF+Service'], createdAt: Date.now() }
+                    ];
+
+                    this.saveData();
+                }
+            }
+
+            checkAuth() {
+                const userData = localStorage.getItem('marketgames_currentUser');
+                if (userData) {
+                    this.currentUser = JSON.parse(userData);
+                    this.updateUI();
+                }
+            }
+
+            login(credentials) {
+                const user = this.db.users.find(u => 
+                    (u.username === credentials.username || u.email === credentials.email) && 
+                    u.password === credentials.password
+                );
+                
+                if (user) {
+                    this.currentUser = user;
+                    localStorage.setItem('marketgames_currentUser', JSON.stringify(user));
+                    this.updateUI();
+                    this.showNotification('Login berhasil!', 'success');
+                    return true;
+                }
+                this.showNotification('Username/email atau password salah!', 'error');
+                return false;
+            }
+
+            logout() {
+                this.currentUser = null;
+                localStorage.removeItem('marketgames_currentUser');
+                this.updateUI();
+                this.showPage('login');
+            }
+
+            updateUI() {
+                const isLoggedIn = !!this.currentUser;
+                const isAdmin = isLoggedIn && this.currentUser.role === 'admin';
+                const isSeller = isLoggedIn && this.currentUser.role === 'seller';
+
+                // Update profile info
+                document.getElementById('userName').textContent = isLoggedIn ? this.currentUser.name : 'Guest';
+                document.getElementById('userRole').textContent = isLoggedIn ? this.currentUser.role : '';
+                document.getElementById('coinAmount').textContent = isLoggedIn ? this.currentUser.coins : 0;
+
+                // Show/hide sections
+                document.getElementById('sellerSection').classList.toggle('hidden', !isSeller);
+                document.getElementById('adminSection').classList.toggle('hidden', !isAdmin);
+
+                // Update coin balance
+                if (isLoggedIn) {
+                    const user = this.db.users.find(u => u.id === this.currentUser.id);
+                    if (user) {
+                        this.currentUser.coins = user.coins;
+                        document.getElementById('coinAmount').textContent = user.coins;
+                    }
+                }
+            }
+
+            showPage(page) {
+                this.currentPage = page;
+                document.querySelectorAll('.nav-btn, .mobile-nav-btn').forEach(btn => {
+                    btn.classList.remove('bg-white/20', 'ring-2', 'ring-cyan-400');
+                });
+                document.querySelectorAll(`[data-page="${page}"]`).forEach(btn => {
+                    btn.classList.add('bg-white/20', 'ring-2', 'ring-cyan-400');
+                });
+
+                const container = document.getElementById('pagesContainer');
+                container.innerHTML = this.renderPage(page);
+                
+                // Auto-focus inputs
+                const inputs = container.querySelectorAll('input, textarea');
+                if (inputs[0]) inputs[0].focus();
+            }
+
+            renderPage(page) {
+                const pages = {
+                    login: this.renderLoginPage(),
+                    home: this.renderHomePage(),
+                    orders: this.renderOrdersPage(),
+                    chat: this.renderChatListPage(),
+                    coins: this.renderCoinsPage(),
+                    groups: this.renderGroupsPage(),
+                    report: this.renderReportPage(),
+                    'my-store': this.renderMyStorePage(),
+                    'add-product': this.renderAddProductPage(),
+                    'payment-methods': this.renderPaymentMethodsPage(),
+                    'admin-dashboard': this.renderAdminDashboard(),
+                    'admin-stores': this.renderAdminStoresPage(),
+                    'coin-products': this.renderCoinProductsPage()
+                };
+                return pages[page] || '<div class="text-center py-20"><i class="fas fa-exclamation-triangle text-6xl text-gray-500 mb-4"></i><h2 class="text-2xl font-bold text-gray-400 mb-2">Halaman Tidak Ditemukan</h2></div>';
+            }
+
+            renderLoginPage() {
+                return `
+                    <div class="max-w-md mx-auto mt-20 glass p-8 rounded-3xl">
+                        <div class="text-center mb-8">
+                            <div class="w-24 h-24 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-3xl mx-auto mb-6 flex items-center justify-center">
+                                <i class="fas fa-gamepad text-3xl text-white"></i>
+                            </div>
+                            <h1 class="gradient-text text-3xl font-bold font-orbitron tracking-wider mb-2">3+MARKET GAMES</h1>
+                            <p class="text-gray-400">Marketplace Jual Beli Akun & Item Game</p>
+                        </div>
+                        
+                        <form id="loginForm" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Email/Nama Pengguna</label>
+                                <input type="text" id="loginUsername" class="w-full glass p-4 rounded-xl focus:outline-none focus:ring-2 ring-cyan-500" placeholder="admin3market / email@email.com" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Kata Sandi</label>
+                                <input type="password" id="loginPassword" class="w-full glass p-4 rounded-xl focus:outline-none focus:ring-2 ring-cyan-500" placeholder="Password" required>
+                            </div>
+                            <div class="glass p-4 rounded-xl">
+                                <label class="flex items-center space-x-2 text-sm mb-2">
+                                    <input type="checkbox" id="otpVerify" class="rounded">
+                                    <span>Verifikasi OTP (Demo: 123456)</span>
+                                </label>
+                                <input type="text" id="otpCode" class="w-full glass p-3 rounded-lg focus:outline-none focus:ring-2 ring-cyan-500" placeholder="Masukkan kode OTP">
+                            </div>
+                            <button type="submit" class="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white py-4 px-6 rounded-2xl font-bold text-lg neon-glow transition-all">
+                                <i class="fas fa-sign-in-alt mr-2"></i>Masuk
+                            </button>
+                        </form>
+                        
+                        <div class="mt-6 text-center">
+                            <p class="text-sm text-gray-400">
+                                Admin: <strong>admin3market</strong> / <strong>admin123</strong><br>
+                                Demo User: <strong>budi@email.com</strong> / <strong>123456</strong>
+                            </p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderHomePage() {
+                const products = this.db.products.filter(p => {
+                    const store = this.db.stores.find(s => s.id === p.storeId);
+                    return !store?.blocked;
+                });
+
+                return `
+                    <div>
+                        <div class="glass p-6 rounded-3xl mb-6">
+                            <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-6">
+                                <div>
+                                    <h1 class="gradient-text text-3xl font-bold font-orbitron tracking-wider mb-2">Marketplace Game</h1>
+                                    <p class="text-gray-400">Temukan akun, item, dan jasa game terbaik</p>
+                                </div>
+                                <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 mt-4 lg:mt-0">
+                                    <input id="searchInput" type="text" placeholder="Cari produk game..." class="glass flex-1 p-4 rounded-2xl focus:outline-none focus:ring-2 ring-cyan-500">
+                                    <select id="gameFilter" class="glass p-4 rounded-2xl focus:outline-none focus:ring-2 ring-cyan-500">
+                                        <option value="">Semua Game</option>
+                                        <option value="Mobile Legends">Mobile Legends</option>
+                                        <option value="Free Fire">Free Fire</option>
+                                        <option value="PUBG Mobile">PUBG Mobile</option>
+                                        <option value="Valorant">Valorant</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                ${products.map(product => {
+                                    const store = this.db.stores.find(s => s.id === product.storeId);
+                                    return `
+                                        <div class="glass p-4 rounded-2xl hover:scale-105 transition-all neon-glow group cursor-pointer" onclick="app.showProductDetail('${product.id}')">
+                                            <div class="w-full h-48 bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl overflow-hidden mb-4 group-hover:scale-110 transition-transform">
+                                                <img src="${product.images[0]}" alt="${product.name}" class="w-full h-full object-cover">
+                                            </div>
+                                            <div class="space-y-2">
+                                                <h3 class="font-bold text-lg line-clamp-2 group-hover:text-cyan-400">${product.name}</h3>
+                                                <div class="flex items-center justify-between">
+                                                    <div class="text-2xl font-bold gradient-text">Rp ${product.price.toLocaleString()}</div>
+                                                    <div class="flex items-center text-sm text-gray-400">
+                                                        <i class="fas fa-layer-group mr-1"></i>
+                                                        <span>${product.stock}</span>
+                                                    </div>
+                                                </div>
+                                                <div class="flex items-center space-x-2 text-sm text-gray-400">
+                                                    <i class="fas fa-gamepad mr-1"></i>
+                                                    <span>${product.game}</span>
+                                                </div>
+                                                ${store ? `<div class="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded-full">${store.name}</div>` : ''}
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                            
+                            ${products.length === 0 ? `
+                                <div class="text-center py-20">
+                                    <i class="fas fa-search text-6xl text-gray-500 mb-6"></i>
+                                    <h3 class="text-2xl font-bold text-gray-400 mb-2">Produk tidak ditemukan</h3>
+                                    <p class="text-gray-500">Coba ubah kata kunci pencarian</p>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Chat System
+            openChat(chatId) {
+                this.currentChat = chatId;
+                const chat = this.db.chats.find(c => c.id === chatId);
+                if (chat) {
+                    document.getElementById('chatTitle').textContent = chat.title;
+                    document.getElementById('chatSubtitle').textContent = chat.subtitle;
+                    document.getElementById('chatAvatar').innerHTML = chat.avatar || '<i class="fas fa-users text-white"></i>';
+                }
+                document.getElementById('chatModal').classList.remove('hidden');
+                this.renderChatMessages();
+            }
+
+            renderChatMessages() {
+                const container = document.getElementById('chatMessages');
+                if (!this.currentChat) return;
+                
+                const chat = this.db.chats.find(c => c.id === this.currentChat);
+                if (!chat) return;
+                
+                container.innerHTML = chat.messages.map(msg => {
+                    const isOwn = msg.senderId === this.currentUser?.id;
+                    const avatar = msg.senderId === this.currentUser?.id ? 
+                        '<i class="fas fa-user-circle text-cyan-400"></i>' : 
+                        '<i class="fas fa-user-circle text-gray-400"></i>';
+                    
+                    return `
+                        <div class="flex ${isOwn ? 'justify-end' : 'justify-start'}">
+                            <div class="chat-bubble max-w-[70%] p-3 rounded-2xl ${isOwn ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20' : ''}">
+                                ${msg.type === 'image' ? 
+                                    `<img src="${msg.content}" class="max-w-full max-h-48 rounded-lg">` :
+                                    `<div class="font-medium text-sm">${msg.content}</div>`
+                                }
+                                <div class="text-xs text-gray-400 mt-1">${this.formatTime(msg.timestamp)}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                container.scrollTop = container.scrollHeight;
+            }
+
+            sendMessage() {
+                if (!this.currentUser || !this.currentChat) return;
+                
+                const input = document.getElementById('chatInput');
+                const message = input.value.trim();
+                if (!message) return;
+                
+                const chat = this.db.chats.find(c => c.id === this.currentChat);
+                if (chat) {
+                    chat.messages.push({
+                        id: Date.now().toString(),
+                        senderId: this.currentUser.id,
+                        senderName: this.currentUser.name,
+                        content: message,
+                        timestamp: Date.now(),
+                        type: 'text'
+                    });
+                    this.saveData();
+                    input.value = '';
+                    this.renderChatMessages();
+                }
+            }
+
+            // Product Detail & Buy
+            showProductDetail(productId) {
+                const product = this.db.products.find(p => p.id === productId);
+                if (!product || !this.currentUser) return;
+                
+                const store = this.db.stores.find(s => s.id === product.storeId);
+                const modal = `
+                    <div class="glass p-8 rounded-3xl max-w-2xl mx-auto max-h-[90vh] overflow-y-auto">
+                        <div class="flex items-start justify-between mb-6">
+                            <h2 class="gradient-text text-2xl font-bold font-orbitron">${product.name}</h2>
+                            <button onclick="document.querySelector('.product-modal').remove()" class="p-2 hover:bg-white/10 rounded-xl">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                            <div class="space-y-4">
+                                <img src="${product.images[0]}" alt="${product.name}" class="w-full h-64 object-cover rounded-2xl">
+                                <div class="grid grid-cols-3 gap-2">
+                                    ${product.images.slice(1).map(img => 
+                                        `<img src="${img}" class="w-full h-20 object-cover rounded-xl cursor-pointer hover:scale-105">`
+                                    ).join('')}
+                                </div>
+                            </div>
+                            <div class="space-y-6">
+                                <div>
+                                    <div class="text-3xl font-bold gradient-text mb-2">Rp ${product.price.toLocaleString()}</div>
+                                    <div class="flex items-center space-x-4 text-sm text-gray-400">
+                                        <span><i class="fas fa-layer-group mr-1"></i>Stok: ${product.stock}</span>
+                                        <span><i class="fas fa-gamepad mr-1"></i>${product.game}</span>
+                                        <span><i class="fas fa-tag mr-1"></i>${product.type}</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="glass p-4 rounded-2xl">
+                                    <h3 class="font-bold mb-3 flex items-center"><i class="fas fa-store mr-2 text-cyan-400"></i>Toko: ${store?.name}</h3>
+                                    <div id="paymentMethods" class="space-y-2">
+                                        ${store?.paymentMethods.map(method => {
+                                            if (method.type === 'qris') {
+                                                return `<div class="flex items-center space-x-2 p-2 bg-green-500/10 border border-green-500/30 rounded-xl">
+                                                    <i class="fas fa-qrcode text-green-400"></i>
+                                                    <div>
+                                                        <div class="font-medium">${method.name}</div>
+                                                        <div class="text-xs text-gray-400">Scan QR Code + ${method.uniqueCode}</div>
+                                                    </div>
+                                                </div>`;
+                                            }
+                                            return `<div class="flex items-center space-x-2 p-2 bg-orange-500/10 border border-orange-500/30 rounded-xl">
+                                                <i class="fab fa-${method.type.toLowerCase()} text-orange-400"></i>
+                                                <div>
+                                                    <div class="font-medium">${method.type.toUpperCase()}</div>
+                                                    <div class="text-xs text-gray-400">${method.accountName}</div>
+                                                    <div class="text-xs text-gray-400">${method.accountNumber}</div>
+                                                </div>
+                                            </div>`;
+                                        }).join('') || '<p class="text-gray-400">Belum ada metode pembayaran</p>'}
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium mb-3">Jumlah</label>
+                                    <input type="number" id="buyQuantity" min="1" max="${product.stock}" value="1" class="w-full glass p-4 rounded-xl focus:outline-none focus:ring-2 ring-cyan-500">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="glass p-6 rounded-2xl mb-6">
+                            <h3 class="font-bold mb-4 flex items-center"><i class="fas fa-align-left mr-2"></i>Deskripsi</h3>
+                            <p class="text-gray-300 leading-relaxed">${product.description}</p>
+                        </div>
+                        
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <button onclick="app.buyProduct('${product.id}')" class="flex-1 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-4 px-6 rounded-2xl font-bold neon-glow transition-all">
+                                <i class="fas fa-shopping-cart mr-2"></i>Beli Sekarang
+                            </button>
+                            <button onclick="app.openChat('${store?.ownerId || ''}_product_${product.id}')" class="flex-1 glass py-4 px-6 rounded-2xl font-bold hover:bg-white/10 transition-all border border-white/20">
+                                <i class="fas fa-comments mr-2"></i>Chat Penjual
+                            </button>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('pagesContainer').innerHTML += `<div class="product-modal fixed inset-0 z-40 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">${modal}</div>`;
+            }
+
+            buyProduct(productId) {
+                const product = this.db.products.find(p => p.id === productId);
+                const store = this.db.stores.find(s => s.id === product.storeId);
+                const quantity = parseInt(document.getElementById('buyQuantity')?.value) || 1;
+                
+                if (!product || !this.currentUser || product.stock < quantity) {
+                    this.showNotification('Stok tidak mencukupi!', 'error');
+                    return;
+                }
+
+                const totalPrice = product.price * quantity;
+                const orderId = 'order_' + Date.now();
+                
+                // Create order
+                this.db.orders.push({
+                    id: orderId,
+                    buyerId: this.currentUser.id,
+                    sellerId: store.ownerId,
+                    storeId: store.id,
+                    productId,
+                    quantity,
+                    totalPrice,
+                    status: 'pending',
+                    paymentMethod: null,
+                    createdAt: Date.now(),
+                    chatId: `${this.currentUser.id}_${store.ownerId}_order_${orderId}`
+                });
+
+                // Reduce stock
+                product.stock -= quantity;
+
+                // Create chat for order
+                if (!this.db.chats.find(c => c.id === `${this.currentUser.id}_${store.ownerId}_order_${orderId}`)) {
+                    this.db.chats.push({
+                        id: `${this.currentUser.id}_${store.ownerId}_order_${orderId}`,
+                        title: `Pesanan #${orderId.slice(-6)}`,
+                        subtitle: `${product.name}`,
+                        type: 'order',
+                        participants: [this.currentUser.id, store.ownerId],
+                        messages: [{
+                            id: Date.now().toString(),
+                            senderId: 'system',
+                            senderName: 'System',
+                            content: `Pesanan #${orderId.slice(-6)} telah dibuat. Total: Rp ${totalPrice.toLocaleString()}`,
+                            timestamp: Date.now(),
+                            type: 'text'
+                        }]
+                    });
+                }
+
+                this.saveData();
+                this.showNotification(`Pesanan #${orderId.slice(-6)} berhasil dibuat!`, 'success');
+                document.querySelector('.product-modal').remove();
+                this.showPage('orders');
+            }
+
+            // Notifications
+            showNotification(message, type = 'info') {
+                const id = 'notif_' + Date.now();
+                this.db.notifications.unshift({
+                    id,
+                    message,
+                    type,
+                    timestamp: Date.now(),
+                    read: false
+                });
+                this.saveData();
+                this.updateNotificationBadge();
+            }
+
+            updateNotificationBadge() {
+                const unreadCount = this.db.notifications.filter(n => !n.read).length;
+                const badge = document.getElementById('notificationBadge');
+                badge.textContent = unreadCount;
+                badge.classList.toggle('hidden', unreadCount === 0);
+            }
+
+            // Utility functions
+            formatTime(timestamp) {
+                return new Date(timestamp).toLocaleTimeString('id-ID', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+            }
+
+            bindEvents() {
+                // Global event delegation
+                document.addEventListener('click', (e) => {
+                    // Navigation
+                    if (e.target.matches('.nav-btn, .mobile-nav-btn')) {
+                        const page = e.target.dataset.page;
+                        if (page === 'login' || this.currentUser) {
+                            this.showPage(page);
+                        } else {
+                            this.showPage('login');
+                        }
+                    }
+
+                    // Profile modal
+                    if (e.target.matches('#profileBtn')) {
+                        this.showProfileModal();
+                    }
+                    if (e.target.matches('#closeProfileModal, #profileModal')) {
+                        document.getElementById('profileModal').classList.add('hidden');
+                    }
+
+                    // Chat modal
+                    if (e.target.matches('#closeChatModal')) {
+                        document.getElementById('chatModal').classList.add('hidden');
+                    }
+                    if (e.target.matches('#sendMessageBtn')) {
+                        this.sendMessage();
+                    }
+                    if (e.target.matches('#sendImageBtn')) {
+                        document.getElementById('imageInput').click();
+                    }
+
+                    // Login form
+                    if (e.target.matches('#loginForm')) {
+                        e.preventDefault();
+                        const username = document.getElementById('loginUsername').value;
+                        const password = document.getElementById('loginPassword').value;
+                        const otp = document.getElementById('otpCode').value;
+                        
+                        if (document.getElementById('otpVerify').checked && otp !== '123456') {
+                            this.showNotification('Kode OTP salah! Gunakan 123456 untuk demo', 'error');
+                            return;
+                        }
+                        
+                        if (this.login({ username, password })) {
+                            this.showPage('home');
+                        }
+                    }
+
+                    // Logout
+                    if (e.target.matches('#logoutBtn')) {
+                        this.logout();
+                    }
+                });
+
+                // Input events
+                document.addEventListener('input', (e) => {
+                    if (e.target.matches('#chatInput')) {
+                        if (e.key === 'Enter') {
+                            this.sendMessage();
+                        }
+                    }
+                });
+
+                // Mobile menu
+                document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+                    document.getElementById('sidebar').classList.toggle('-translate-x-full');
+                });
+
+                // Search & Filter
+                document.addEventListener('input', (e) => {
+                    if (e.target.matches('#searchInput, #gameFilter') && this.currentPage === 'home') {
+                        this.filterProducts();
+                    }
+                });
+            }
+
+            showProfileModal() {
+                if (!this.currentUser) return;
+                
+                const isAdmin = this.currentUser.role === 'admin';
+                const isSeller = this.currentUser.role === 'seller';
+                
+                document.getElementById('profileContent').innerHTML = `
+                    <div class="glass p-6 rounded-2xl mb-6">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <div class="w-16 h-16 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-2xl flex items-center justify-center text-2xl font-bold text-white">
+                                ${this.currentUser.name.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-xl">${this.currentUser.name}</h3>
+                                <div class="text-sm text-gray-400">${this.currentUser.email}</div>
+                                <div class="text-sm text-gray-400 capitalize">${this.currentUser.role}</div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div class="glass p-3 rounded-xl">
+                                <div class="font-bold text-cyan-400"><i class="fas fa-coins mr-1"></i>${this.currentUser.coins}</div>
+                                <div class="text-gray-400">Koin</div>
+                            </div>
+                            ${isSeller ? `
+                                <div class="glass p-3 rounded-xl">
+                                    <div class="font-bold text-green-400"><i class="fas fa-store mr-1"></i>1</div>
+                                    <div class="text-gray-400">Toko</div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                    
+                    ${isAdmin ? `
+                        <div class="space-y-3">
+                            <h4 class="font-bold flex items-center"><i class="fas fa-broadcast-tower mr-2 text-purple-400"></i>Siarkan Info</h4>
+                            <textarea id="broadcastMessage" class="w-full glass p-3 rounded-xl" rows="3" placeholder="Pesan untuk semua user..."></textarea>
+                            <button onclick="app.broadcastMessage()" class="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white py-2 px-4 rounded-xl font-semibold">
+                                Siarkan
+                            </button>
+                        </div>
+                    ` : ''}
+                `;
+                
+                document.getElementById('profileModal').classList.remove('hidden');
+            }
+
+            filterProducts() {
+                // Implementation for live search & filter
+                console.log('Filtering products...');
+            }
+
+            broadcastMessage() {
+                const message = document.getElementById('broadcastMessage').value.trim();
+                if (!message || !this.currentUser?.role === 'admin') return;
+                
+                this.db.broadcasts.push({
+                    id: 'broadcast_' + Date.now(),
+                    message,
+                    timestamp: Date.now(),
+                    sender: this.currentUser.name
+                });
+                
+                this.db.users.forEach(user => {
+                    if (user.id !== this.currentUser.id) {
+                        this.db.notifications.push({
+                            id: 'notif_' + Date.now(),
+                            message: `Broadcast Admin: ${message.substring(0, 50)}...`,
+                            type: 'broadcast',
+                            timestamp: Date.now(),
+                            read: false
+                        });
+                    }
+                });
+                
+                this.saveData();
+                this.showNotification('Pesan berhasil disiarkan!', 'success');
+                document.getElementById('broadcastMessage').value = '';
+            }
+        }
+
+        // Initialize App
+        const app = new MarketGamesApp();
+
+        // Auto-save every 30 seconds
+        setInterval(() => app.saveData(), 30000);
+
+        // Real-time chat updates
+        setInterval(() => {
+            if (app.currentChat) {
+                app.renderChatMessages();
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
