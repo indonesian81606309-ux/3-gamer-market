@@ -3,1094 +3,458 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3+Market Games - Marketplace Game Terlengkap</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>3+Market Games - Marketplace + Lelang + Barter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #00d4ff;
-            --secondary: #00f5ff;
-            --accent: #ff00ff;
-            --bg: #0a0a0a;
-            --card: #1a1a1a;
-            --text: #ffffff;
-            --text-muted: #b0b0b0;
-            --border: #333;
-            --success: #00ff88;
-            --danger: #ff4444;
-            --warning: #ffaa00;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, var(--bg) 0%, #1a0a2e 100%);
-            color: var(--text);
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 25%, #16213e 50%, #0f0f23 100%); 
+            color: #e2e8f0; 
             overflow-x: hidden;
         }
-
-        .glass {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
+        .glass { 
+            background: rgba(255,255,255,0.08); 
+            backdrop-filter: blur(20px); 
+            border: 1px solid rgba(255,255,255,0.12); 
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
         }
-
-        .glow {
-            box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+        .glass-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .glass-hover:hover { 
+            background: rgba(255,255,255,0.15); 
+            transform: translateY(-4px); 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
         }
-
-        /* Navigation */
-        .nav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            background: rgba(10, 10, 10, 0.95);
-            backdrop-filter: blur(20px);
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 1.8rem;
-            font-weight: bold;
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .gradient-text { 
+            background: linear-gradient(135deg, #00d4ff 0%, #0099cc 50%, #0077b6 100%);
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
             background-clip: text;
+            font-family: 'Orbitron', monospace;
         }
-
-        .nav-icons {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-
-        .nav-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
+        .neon-glow { 
+            box-shadow: 0 0 20px rgba(0,212,255,0.5);
             transition: all 0.3s ease;
         }
-
-        .nav-icon:hover {
-            background: var(--primary);
-            transform: scale(1.1);
+        .neon-glow:hover { box-shadow: 0 0 30px rgba(0,212,255,0.8); }
+        .scrollbar-thin::-webkit-scrollbar { width: 8px; height: 8px; }
+        .scrollbar-thin::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 10px; }
+        .scrollbar-thin::-webkit-scrollbar-thumb { 
+            background: linear-gradient(45deg, #00d4ff, #0099cc); 
+            border-radius: 10px; 
         }
-
-        .hamburger {
-            display: none;
-            flex-direction: column;
-            gap: 4px;
-            cursor: pointer;
-        }
-
-        .hamburger span {
-            width: 25px;
-            height: 3px;
-            background: var(--text);
-            transition: 0.3s;
-        }
-
-        /* Main Content */
-        .main-content {
-            margin-top: 80px;
-            padding: 2rem;
-            min-height: calc(100vh - 80px);
-        }
-
-        /* Cards */
-        .card {
-            background: var(--card);
-            border-radius: 20px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            border: 1px solid var(--border);
-            transition: all 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-        }
-
-        /* Buttons */
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(0, 212, 255, 0.4);
-        }
-
-        .btn-success {
-            background: linear-gradient(45deg, var(--success), #00cc66);
-            color: white;
-        }
-
-        .btn-danger {
-            background: linear-gradient(45deg, var(--danger), #cc0000);
-            color: white;
-        }
-
-        .btn-warning {
-            background: linear-gradient(45deg, var(--warning), #cc8800);
-            color: white;
-        }
-
-        /* Forms */
-        .form-group {
-            margin-bottom: 1rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: var(--text-muted);
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 12px 16px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            color: var(--text);
-            font-size: 1rem;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
-        }
-
-        /* Product Grid */
-        .products-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .product-card {
-            background: var(--card);
-            border-radius: 20px;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .product-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
-        }
-
-        .product-image {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-        }
-
-        .product-info {
-            padding: 1.5rem;
-        }
-
-        .product-title {
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-        }
-
-        .product-price {
-            font-size: 1.5rem;
-            font-weight: bold;
-            background: linear-gradient(45deg, var(--success), #00cc66);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        /* Chat */
-        .chat-container {
-            height: 400px;
-            overflow-y: auto;
-            background: var(--card);
-            border-radius: 15px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .message {
-            margin-bottom: 1rem;
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .message.own {
-            flex-direction: row-reverse;
-        }
-
-        .message-bubble {
-            max-width: 70%;
-            padding: 10px 15px;
-            border-radius: 18px;
-            word-wrap: break-word;
-        }
-
-        .message.own .message-bubble {
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            color: white;
-        }
-
-        .message.other .message-bubble {
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--text);
-        }
-
-        /* Sidebar */
-        .sidebar {
-            position: fixed;
-            left: -300px;
-            top: 80px;
-            width: 300px;
-            height: calc(100vh - 80px);
-            background: rgba(26, 26, 26, 0.98);
-            backdrop-filter: blur(20px);
-            transition: left 0.3s ease;
-            z-index: 999;
-            padding: 2rem;
-        }
-
-        .sidebar.active {
-            left: 0;
-        }
-
-        .nav-tabs {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            overflow-x: auto;
-        }
-
-        .nav-tab {
-            padding: 10px 20px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border);
-            border-radius: 25px;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.3s ease;
-        }
-
-        .nav-tab.active {
-            background: var(--primary);
-            border-color: var(--primary);
-            color: white;
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
-            z-index: 10000;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            max-width: 500px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .hamburger {
-                display: flex;
-            }
-
-            .nav-icons > *:not(.hamburger) {
-                display: none;
-            }
-
-            .main-content {
-                padding: 1rem;
-            }
-
-            .products-grid {
-                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-                gap: 1rem;
-            }
-
-            .sidebar {
-                width: 100%;
-                left: -100%;
-            }
-        }
-
-        /* Animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .animate-fadeInUp {
-            animation: fadeInUp 0.6s ease forwards;
-        }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--border);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--primary);
-            border-radius: 4px;
-        }
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: linear-gradient(45deg, #0099cc, #0077b6); }
+        .fade-in { animation: fadeIn 0.6s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .pulse-glow { animation: pulseGlow 2s infinite; }
+        @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 20px rgba(0,212,255,0.3); } 50% { box-shadow: 0 0 30px rgba(0,212,255,0.6); } }
+        .sidebar { background: rgba(15,15,35,0.95); backdrop-filter: blur(20px); }
+        .nav-active { background: rgba(0,212,255,0.2) !important; ring: 2px solid #00d4ff !important; }
     </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="nav">
-        <div class="logo">🎮 3+Market Games</div>
-        <div class="nav-icons">
-            <div class="nav-icon" onclick="toggleSearch()">🔍</div>
-            <div class="nav-icon" onclick="toggleCart()">🛒</div>
-            <div class="nav-icon" onclick="toggleProfile()">👤</div>
-            <div class="nav-icon hamburger" onclick="toggleSidebar()">
-                <span></span>
-                <span></span>
-                <span></span>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="fixed inset-0 bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 z-50 flex items-center justify-center">
+        <div class="text-center fade-in">
+            <div class="w-28 h-28 border-4 border-transparent border-t-cyan-400 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-full flex items-center justify-center mb-6 glass p-4 pulse-glow">
+                <i class="fas fa-gamepad text-4xl text-cyan-400"></i>
+            </div>
+            <div class="gradient-text text-3xl md:text-4xl font-bold mb-2 tracking-wide">3+MARKET GAMES</div>
+            <div class="text-lg text-cyan-400 font-medium flex items-center gap-2 justify-center">
+                <div class="w-6 h-6 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
+                Memuat platform...
             </div>
         </div>
-    </nav>
-
-    <!-- Sidebar Navigation -->
-    <div id="sidebar" class="sidebar">
-        <div class="nav-tabs" id="navTabs">
-            <div class="nav-tab active" data-tab="home">🏠 Home</div>
-            <div class="nav-tab" data-tab="shop">🏪 Toko Saya</div>
-            <div class="nav-tab" data-tab="orders">📦 Pesanan</div>
-            <div class="nav-tab" data-tab="chat">💬 Chat</div>
-            <div class="nav-tab" data-tab="coins">💰 Koin</div>
-            <div class="nav-tab" data-tab="groups">👥 Grup</div>
-            <div class="nav-tab" data-tab="admin" style="display: none;">⚙️ Admin</div>
-            <div class="nav-tab" data-tab="lelang">🔨 Lelang</div>
-            <div class="nav-tab" data-tab="barter">🔄 Barter</div>
-        </div>
-        <div id="sidebarContent"></div>
     </div>
 
-    <!-- Main Content -->
-    <div class="main-content" id="mainContent">
-        <!-- Content will be loaded here -->
-    </div>
-
-    <!-- Modals -->
-    <div id="loginModal" class="modal">
-        <div class="glass modal-content glow">
-            <h2>🔐 Login</h2>
-            <div class="form-group">
-                <label>Email / Username</label>
-                <input type="text" class="form-control" id="loginEmail" placeholder="Masukkan email/username">
-            </div>
-            <div class="form-group">
-                <label>Password</label>
-                <input type="password" class="form-control" id="loginPassword" placeholder="Password">
-            </div>
-            <div id="otpSection" style="display: none;">
-                <div class="form-group">
-                    <label>OTP (Demo: 123456)</label>
-                    <input type="text" class="form-control" id="otpCode" placeholder="Masukkan kode OTP">
+    <!-- Main App -->
+    <div id="app" class="hidden min-h-screen">
+        <!-- Enhanced Navbar -->
+        <nav class="glass fixed top-0 left-0 right-0 z-50 px-6 py-4 flex justify-between items-center backdrop-blur-xl">
+            <div class="flex items-center gap-4">
+                <button id="mobileMenuBtn" class="lg:hidden p-2.5 glass rounded-xl hover:bg-white/10 transition-all">
+                    <i class="fas fa-bars text-xl text-cyan-400"></i>
+                </button>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center glass-hover">
+                        <i class="fas fa-store text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="gradient-text text-2xl font-bold tracking-tight">3+MARKET</h1>
+                        <div class="text-xs text-cyan-400 font-medium">GAMES</div>
+                    </div>
                 </div>
             </div>
-            <button class="btn btn-primary w-full" onclick="login()">Login</button>
-            <button class="btn btn-warning w-full" onclick="showRegister()">Belum punya akun? Daftar</button>
-            <div style="text-align: center; margin-top: 1rem;">
-                <small>Admin: admin3market / admin123</small>
+            <div class="flex items-center gap-3">
+                <div class="glass px-4 py-2.5 rounded-2xl text-sm font-medium flex items-center gap-2 glass-hover">
+                    <i class="fas fa-coins text-yellow-400"></i>
+                    <span id="coinAmount" class="font-bold text-lg">0</span> <span class="text-xs">Koin</span>
+                </div>
+                <button id="notificationBtn" class="relative p-2.5 glass rounded-2xl glass-hover">
+                    <i class="fas fa-bell text-xl"></i>
+                    <span id="notificationBadge" class="absolute -top-1 -right-1 bg-red-500 text-xs w-6 h-6 rounded-full flex items-center justify-center font-bold hidden">0</span>
+                </button>
+                <button id="profileBtn" class="w-12 h-12 glass rounded-2xl flex items-center justify-center glass-hover">
+                    <i class="fas fa-user text-lg"></i>
+                </button>
             </div>
-        </div>
-    </div>
+        </nav>
 
-    <div id="registerModal" class="modal">
-        <div class="glass modal-content glow">
-            <h2>📝 Daftar Akun</h2>
-            <div class="form-group">
-                <label>Email</label>
-                <input type="email" class="form-control" id="regEmail" placeholder="Email kamu">
+        <!-- Main Layout -->
+        <div class="flex h-screen pt-20">
+            <!-- Enhanced Sidebar -->
+            <div id="sidebar" class="sidebar fixed inset-y-20 left-0 w-72 z-40 h-[calc(100vh-5rem)] transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out overflow-y-auto scrollbar-thin p-6 space-y-6">
+                <div id="sidebarContent"></div>
             </div>
-            <div class="form-group">
-                <label>Nama</label>
-                <input type="text" class="form-control" id="regName" placeholder="Nama lengkap">
-            </div>
-            <div class="form-group">
-                <label>Password</label>
-                <input type="password" class="form-control" id="regPassword" placeholder="Password kuat">
-            </div>
-            <div class="form-group">
-                <label>Konfirmasi Password</label>
-                <input type="password" class="form-control" id="regConfirmPassword" placeholder="Ulangi password">
-            </div>
-            <button class="btn btn-primary w-full" onclick="register()">Daftar</button>
-            <button class="btn btn-warning w-full" onclick="showLogin()">Sudah punya akun? Login</button>
-        </div>
-    </div>
 
-    <!-- Product Detail Modal -->
-    <div id="productModal" class="modal">
-        <div class="glass modal-content glow" style="max-width: 600px;">
-            <div id="productDetail"></div>
-        </div>
-    </div>
-
-    <!-- Chat Modal -->
-    <div id="chatModal" class="modal">
-        <div class="glass modal-content glow" style="max-width: 500px; max-height: 80vh;">
-            <div id="chatHeader" class="card" style="margin: -1.5rem -1.5rem 1rem -1.5rem; border-radius: 0;"></div>
-            <div id="chatMessages" class="chat-container"></div>
-            <div style="display: flex; gap: 0.5rem;">
-                <input type="file" id="chatImage" accept="image/*" style="display: none;" onchange="previewImage()">
-                <input type="text" class="form-control" id="chatInput" placeholder="Ketik pesan..." onkeypress="handleKeypress(event)">
-                <button class="btn btn-primary" onclick="sendMessage()">Kirim</button>
+            <!-- Main Content -->
+            <div class="flex-1 ml-0 lg:ml-72 pt-8 pb-24 px-6 lg:px-12 overflow-y-auto scrollbar-thin h-[calc(100vh-5rem)]" id="pagesContainer">
+                <!-- Dynamic content loaded here -->
             </div>
         </div>
+
+        <!-- Modals -->
+        <div id="profileModal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 hidden flex items-center justify-center p-6">
+            <div class="glass max-w-md w-full rounded-3xl p-8 glass-hover max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="gradient-text text-3xl font-bold">👤 Profil</h2>
+                    <button id="closeProfileModal" class="p-2 hover:bg-white/10 rounded-2xl transition-all">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <div id="profileContent" class="space-y-4"></div>
+                <div class="mt-10 pt-8 border-t border-white/10">
+                    <button id="logoutBtn" class="w-full bg-gradient-to-r from-red-600 to-red-700 py-4 rounded-2xl font-bold text-lg neon-glow hover:from-red-700 hover:to-red-800">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Keluar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification Modal -->
+        <div id="notificationModal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 hidden flex items-center justify-center p-6">
+            <div class="glass w-full max-w-lg max-h-[80vh] rounded-3xl overflow-hidden glass-hover">
+                <div class="p-8 border-b border-white/10">
+                    <h2 class="gradient-text text-2xl font-bold flex items-center gap-3">
+                        <i class="fas fa-bell"></i>Notifikasi
+                    </h2>
+                </div>
+                <div id="notificationList" class="p-6 max-h-96 overflow-y-auto scrollbar-thin space-y-3"></div>
+            </div>
+        </div>
+
+        <!-- Toast Container -->
+        <div id="toastContainer" class="fixed top-24 right-6 z-50 space-y-2 hidden"></div>
     </div>
 
     <script>
-        // Database Structure
-        const DB = {
-            init() {
-                if (!localStorage.getItem('3market_data')) {
-                    localStorage.setItem('3market_data', JSON.stringify({
-                        users: [],
-                        shops: [],
-                        products: [],
-                        orders: [],
-                        chats: {},
-                        groups: [],
-                        coins: {},
-                        coinProducts: [],
-                        coinRequests: [],
-                        adminPayments: [],
-                        lelang: [],
-                        barter: [],
-                        reports: [],
-                        adminMessages: [],
-                        blockedShops: []
-                    }));
-                }
-            },
-            get() {
-                return JSON.parse(localStorage.getItem('3market_data') || '{}');
-            },
-            set(data) {
-                localStorage.setItem('3market_data', JSON.stringify(data));
-            }
-        };
-
-        // Games List
-        const GAMES = ['Mobile Legends', 'Free Fire', 'PUBG Mobile', 'Valorant', 'Genshin Impact', 'Roblox', 'Among Us'];
-
-        // Current User & State
-        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
-        let currentChat = null;
-        let currentProduct = null;
-        let selectedTab = 'home';
-
-        // Initialize
-        DB.init();
-        loadMainContent();
-
-        // Navigation Functions
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('active');
-        }
-
-        function toggleSearch() {
-            // Implement search modal
-            alert('Fitur pencarian akan ditampilkan di sini!');
-        }
-
-        function toggleCart() {
-            // Implement cart modal
-            alert('Keranjang belanja akan ditampilkan di sini!');
-        }
-
-        function toggleProfile() {
-            if (!currentUser) {
-                document.getElementById('loginModal').classList.add('active');
-                return;
-            }
-            showProfile();
-        }
-
-        function showModal(modalId) {
-            document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
-            document.getElementById(modalId).classList.add('active');
-        }
-
-        function showLogin() {
-            showModal('loginModal');
-        }
-
-        function showRegister() {
-            showModal('registerModal');
-        }
-
-        // Auth Functions
-        function register() {
-            const email = document.getElementById('regEmail').value;
-            const name = document.getElementById('regName').value;
-            const password = document.getElementById('regPassword').value;
-            const confirmPassword = document.getElementById('regConfirmPassword').value;
-
-            if (password !== confirmPassword) {
-                alert('Password tidak cocok!');
-                return;
+        class MarketApp {
+            constructor() {
+                this.db = {};
+                this.currentUser = null;
+                this.currentPage = 'home';
+                this.init();
             }
 
-            const data = DB.get();
-            if (data.users.find(u => u.email === email)) {
-                alert('Email sudah terdaftar!');
-                return;
+            // ===== CORE INITIALIZATION =====
+            async init() {
+                this.loadData();
+                this.initDemoData();
+                this.bindGlobalEvents();
+                await this.checkAuth();
+                this.updateUI();
+                this.showSplash();
             }
 
-            const newUser = {
-                id: Date.now().toString(),
-                email,
-                name,
-                password,
-                coins: 0,
-                role: 'buyer',
-                createdAt: new Date().toISOString(),
-                phoneVerified: false
-            };
-
-            data.users.push(newUser);
-            DB.set(data);
-            alert('Registrasi berhasil! Silakan login.');
-            showLogin();
-        }
-
-        function login() {
-            const identifier = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-
-            const data = DB.get();
-            let user = data.users.find(u => u.email === identifier || u.name === identifier);
-
-            // Admin login
-            if (identifier === 'admin3market' && password === 'admin123') {
-                user = {
-                    id: 'admin',
-                    name: 'Admin 3Market',
-                    email: 'admin@3market.com',
-                    role: 'admin',
-                    coins: 10000
-                };
+            loadData() {
+                const keys = ['users', 'stores', 'products', 'orders', 'auctions', 'barters', 'coinProducts', 'notifications'];
+                keys.forEach(key => {
+                    const data = localStorage.getItem(`3m_${key}`);
+                    this.db[key] = data ? JSON.parse(data) : [];
+                });
             }
 
-            if (!user) {
-                alert('Email/username atau password salah!');
-                return;
+            saveData() {
+                Object.keys(this.db).forEach(key => {
+                    localStorage.setItem(`3m_${key}`, JSON.stringify(this.db[key]));
+                });
             }
 
-            if (user.password !== password && user.id !== 'admin') {
-                alert('Password salah!');
-                return;
+            // ===== UI RENDERING =====
+            updateUI() {
+                this.updateSidebar();
+                this.updateCoinDisplay();
+                this.updateNotificationBadge();
             }
 
-            currentUser = user;
-            localStorage.setItem('currentUser', JSON.stringify(user));
-            
-            document.getElementById('otpSection').style.display = 'block';
-        }
+            updateSidebar() {
+                const sidebar = document.getElementById('sidebarContent');
+                if (!sidebar) return;
 
-        function verifyOTP() {
-            const otp = document.getElementById('otpCode').value;
-            if (otp === '123456') {
-                loadMainContent();
-                document.getElementById('loginModal').classList.remove('active');
-                updateUI();
-            } else {
-                alert('OTP salah! Gunakan: 123456');
+                const { currentUser } = this;
+                const isLoggedIn = !!currentUser;
+                const userStore = isLoggedIn ? this.db.stores.find(s => s.ownerId === currentUser.id) : null;
+                const isSeller = isLoggedIn && currentUser.role === 'seller';
+                const isAdmin = isLoggedIn && currentUser.role === 'admin';
+
+                sidebar.innerHTML = this.renderSidebar(isLoggedIn, currentUser, userStore, isSeller, isAdmin);
+                this.bindSidebarEvents();
             }
-        }
 
-        function logout() {
-            currentUser = null;
-            localStorage.removeItem('currentUser');
-            loadMainContent();
-            updateUI();
-        }
-
-        // Content Loading
-        function loadMainContent() {
-            const content = document.getElementById('mainContent');
-            const data = DB.get();
-
-            if (!currentUser) {
-                content.innerHTML = `
-                    <div class="glass card glow animate-fadeInUp" style="max-width: 500px; margin: 0 auto; text-align: center;">
-                        <h1 style="font-size: 3rem; margin-bottom: 1rem;">🎮 3+Market Games</h1>
-                        <p style="font-size: 1.2rem; margin-bottom: 2rem; color: var(--text-muted);">Marketplace terlengkap untuk jual beli akun, item, dan jasa game</p>
-                        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-                            <button class="btn btn-primary" onclick="showLogin()" style="padding: 15px 30px; font-size: 1.1rem;">🔐 Login</button>
-                            <button class="btn btn-success" onclick="showRegister()" style="padding: 15px 30px; font-size: 1.1rem;">📝 Daftar</button>
+            renderSidebar(isLoggedIn, user, userStore, isSeller, isAdmin) {
+                const profileSection = `
+                    <div class="glass p-6 rounded-3xl mb-8 glass-hover">
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center">
+                                <i class="fas fa-user text-2xl text-white"></i>
+                            </div>
+                            <div>
+                                <div class="font-bold text-xl">${isLoggedIn ? user.name : 'Guest'}</div>
+                                ${isLoggedIn ? `<div class="text-sm text-cyan-400 capitalize">${user.role}</div>` : ''}
+                            </div>
                         </div>
-                        <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border);">
-                            <h3>✨ Fitur Unggulan</h3>
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
-                                <div>💳 4 Metode Pembayaran</div>
-                                <div>💬 Chat Real-time</div>
-                                <div>💰 Sistem Koin</div>
-                                <div>👥 Grup Chat</div>
-                                <div>🔨 Lelang</div>
-                                <div>🔄 Barter Aman</div>
+                        ${isLoggedIn ? `<div class="text-2xl font-bold gradient-text">${user.coins.toLocaleString()} <i class="fas fa-coins text-yellow-400"></i></div>` : ''}
+                    </div>
+                `;
+
+                const mainNav = `
+                    <div class="space-y-2 mb-8">
+                        ${this.renderNavItem('home', 'fas fa-home', 'Home')}
+                        ${isLoggedIn ? this.renderNavItem('orders', 'fas fa-shopping-bag', 'Pesanan') : ''}
+                        ${isLoggedIn ? this.renderNavItem('chat', 'fas fa-comments', 'Chat') : ''}
+                        ${this.renderNavItem('auctions', 'fas fa-gavel', 'Lelang')}
+                        ${this.renderNavItem('barter', 'fas fa-exchange-alt', 'Barter')}
+                        ${isLoggedIn ? this.renderNavItem('transfer-coins', 'fas fa-hand-holding-usd', 'Kirim Koin') : ''}
+                        ${isLoggedIn ? this.renderNavItem('coins', 'fas fa-coins', 'Koin Saya') : ''}
+                        ${isLoggedIn ? this.renderNavItem('groups', 'fas fa-users', 'Grup') : ''}
+                    </div>
+                `;
+
+                let sellerSection = '';
+                if (isSeller) {
+                    sellerSection = `
+                        <div class="space-y-2 mb-8">
+                            <div class="text-xs text-gray-400 uppercase tracking-wider px-3 py-2 font-medium">Toko Saya</div>
+                            ${this.renderNavItem('my-store', 'fas fa-store', userStore?.name || 'Toko Saya')}
+                            ${this.renderNavItem('add-product', 'fas fa-plus-circle', 'Tambah Produk')}
+                            ${this.renderNavItem('payment-methods', 'fas fa-credit-card', 'Metode Bayar')}
+                        </div>
+                    `;
+                }
+
+                let adminSection = '';
+                if (isAdmin) {
+                    adminSection = `
+                        <div class="space-y-2">
+                            <div class="text-xs text-gray-400 uppercase tracking-wider px-3 py-2 font-medium">Admin Panel</div>
+                            ${this.renderNavItem('admin-dashboard', 'fas fa-tachometer-alt', 'Dashboard')}
+                            ${this.renderNavItem('admin-stores', 'fas fa-stores', 'Kelola Toko')}
+                            ${this.renderNavItem('admin-topup', 'fas fa-arrow-up', 'TopUp Koin')}
+                        </div>
+                    `;
+                }
+
+                let createStoreBtn = '';
+                if (isLoggedIn && !userStore && !isAdmin) {
+                    createStoreBtn = `
+                        <div class="glass p-4 rounded-3xl glass-hover">
+                            <button id="createStoreBtn" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 hover:from-emerald-600 hover:to-teal-700 neon-glow">
+                                <i class="fas fa-store"></i>Buat Toko Pertama
+                            </button>
+                        </div>
+                    `;
+                }
+
+                return profileSection + mainNav + sellerSection + adminSection + createStoreBtn;
+            }
+
+            renderNavItem(page, icon, label) {
+                return `<button class="nav-btn w-full flex items-center gap-4 p-4 rounded-2xl glass-hover text-left group" data-page="${page}">
+                    <i class="${icon} text-lg group-hover:text-cyan-400 transition-colors"></i>
+                    <span class="font-medium">${label}</span>
+                </button>`;
+            }
+
+            // ===== PAGE MANAGEMENT =====
+            async showPage(page) {
+                if (!this.currentUser && !['login', 'register'].includes(page)) {
+                    this.showPage('login');
+                    return;
+                }
+
+                this.currentPage = page;
+                const container = document.getElementById('pagesContainer');
+                container.innerHTML = `<div class="fade-in">${this.renderPage(page)}</div>`;
+                this.bindPageEvents(page);
+                this.updateActiveNav(page);
+            }
+
+            renderPage(page) {
+                const pages = {
+                    login: this.renderLoginPage.bind(this),
+                    register: this.renderRegisterPage.bind(this),
+                    home: this.renderHomePage.bind(this),
+                    // Add other pages here
+                };
+                return pages[page]?.() || this.renderNotFoundPage();
+            }
+
+            renderLoginPage() {
+                return `
+                    <div class="max-w-2xl mx-auto mt-24">
+                        <div class="glass p-12 rounded-4xl max-w-md mx-auto glass-hover">
+                            <div class="text-center mb-10">
+                                <div class="w-28 h-28 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-3xl mx-auto mb-6 flex items-center justify-center neon-glow">
+                                    <i class="fas fa-gamepad text-4xl text-white"></i>
+                                </div>
+                                <h1 class="gradient-text text-4xl font-black mb-2 tracking-tight">Selamat Datang</h1>
+                                <p class="text-gray-400 text-lg">Masuk ke dunia gaming terlengkap</p>
+                            </div>
+                            <form id="loginForm" class="space-y-4">
+                                <div class="glass p-4 rounded-2xl">
+                                    <input type="text" id="loginUsername" placeholder="👤 Email / Username" 
+                                           class="w-full bg-transparent outline-none text-lg pt-2" required>
+                                </div>
+                                <div class="glass p-4 rounded-2xl">
+                                    <input type="password" id="loginPassword" placeholder="🔒 Password" 
+                                           class="w-full bg-transparent outline-none text-lg pt-2" required>
+                                </div>
+                                <div class="flex items-center gap-3 p-3 glass rounded-2xl">
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="checkbox" id="otpVerify" class="w-4 h-4 text-cyan-500 rounded">
+                                        <span class="text-sm">Verifikasi OTP (demo: 123456)</span>
+                                    </label>
+                                </div>
+                                <button type="submit" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 py-5 rounded-2xl font-bold text-xl neon-glow">
+                                    <i class="fas fa-sign-in-alt mr-2"></i>Masuk Sekarang
+                                </button>
+                            </form>
+                            <div class="text-center mt-8 p-4 glass rounded-2xl">
+                                <p class="text-sm text-gray-400 mb-2">Demo Akun:</p>
+                                <div class="text-xs space-y-1">
+                                    <div>👑 admin3market / admin123</div>
+                                    <div>🛒 budi@email.com / 123456</div>
+                                    <div>🏪 seller@email.com / 123456</div>
+                                </div>
+                            </div>
+                            <div class="text-center mt-6">
+                                <button id="toRegisterBtn" class="text-cyan-400 hover:text-cyan-300 font-medium underline">
+                                    Belum punya akun? Daftar sekarang
+                                </button>
                             </div>
                         </div>
                     </div>
                 `;
-                return;
             }
 
-            // Buyer home
-            if (currentUser.role === 'buyer') {
-                content.innerHTML = `
-                    <div class="card animate-fadeInUp">
-                        <h2>🏠 Selamat datang, ${currentUser.name}!</h2>
-                        <p>Saldo Koin: <span style="color: var(--success); font-size: 1.5rem; font-weight: bold;">${currentUser.coins || 0} 💰</span></p>
-                    </div>
-                    <div class="card animate-fadeInUp">
-                        <h3>🎮 Produk Populer</h3>
-                        <div class="products-grid" id="productsGrid"></div>
+            // ===== EVENT BINDING =====
+            bindGlobalEvents() {
+                // Mobile menu
+                document.getElementById('mobileMenuBtn')?.addEventListener('click', () => {
+                    document.getElementById('sidebar').classList.toggle('-translate-x-full');
+                });
+
+                // Profile modal
+                document.getElementById('profileBtn')?.addEventListener('click', () => this.showProfileModal());
+                document.getElementById('closeProfileModal')?.addEventListener('click', () => 
+                    document.getElementById('profileModal').classList.add('hidden'));
+                document.getElementById('logoutBtn')?.addEventListener('click', () => this.logout());
+
+                // Notifications
+                document.getElementById('notificationBtn')?.addEventListener('click', () => this.showNotifications());
+            }
+
+            bindSidebarEvents() {
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const page = btn.dataset.page;
+                        if (page) {
+                            this.showPage(page);
+                            document.getElementById('sidebar')?.classList.add('-translate-x-full');
+                        }
+                    });
+                });
+
+                const createStoreBtn = document.getElementById('createStoreBtn');
+                if (createStoreBtn) {
+                    createStoreBtn.addEventListener('click', () => this.createStore());
+                }
+            }
+
+            // ===== UTILITY METHODS =====
+            showToast(message, type = 'info') {
+                const toastContainer = document.getElementById('toastContainer');
+                toastContainer.classList.remove('hidden');
+                
+                const toast = document.createElement('div');
+                toast.className = `glass p-4 rounded-2xl glass-hover animate-slide-in-right max-w-sm shadow-2xl ${
+                    type === 'success' ? 'border-l-4 border-emerald-400' :
+                    type === 'error' ? 'border-l-4 border-red-400' : 'border-l-4 border-cyan-400'
+                }`;
+                toast.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <i class="fas ${type === 'success' ? 'fa-check-circle text-emerald-400' : 
+                                      type === 'error' ? 'fa-exclamation-circle text-red-400' : 
+                                      'fa-info-circle text-cyan-400'} text-xl"></i>
+                        <span class="font-medium">${message}</span>
                     </div>
                 `;
-                loadProducts();
-            }
-        }
-
-        function loadProducts() {
-            const data = DB.get();
-            const grid = document.getElementById('productsGrid');
-            if (!grid) return;
-
-            grid.innerHTML = data.products.map(product => `
-                <div class="product-card glass" onclick="showProductDetail('${product.id}')">
-                    <div style="position: relative; height: 200px; background: linear-gradient(45deg, ${product.color || '#00d4ff'}, ${product.color || '#00f5ff'}); display: flex; align-items: center; justify-content: center; font-size: 4rem;">
-                        ${product.image || '🎮'}
-                    </div>
-                    <div class="product-info">
-                        <div class="product-title">${product.name}</div>
-                        <div style="color: var(--text-muted); font-size: 0.9rem;">${product.game} - ${product.type}</div>
-                        <div class="product-price">Rp ${product.price.toLocaleString()}</div>
-                        <div style="color: var(--text-muted); font-size: 0.8rem;">Stok: ${product.stock}</div>
-                    </div>
-                </div>
-            `).join('') || '<p style="text-align: center; color: var(--text-muted);">Belum ada produk</p>';
-        }
-
-        function showProductDetail(productId) {
-            const data = DB.get();
-            currentProduct = data.products.find(p => p.id === productId);
-            if (!currentProduct) return;
-
-            document.getElementById('productDetail').innerHTML = `
-                <div style="text-align: center; margin-bottom: 1.5rem;">
-                    <div style="font-size: 4rem; margin-bottom: 1rem;">${currentProduct.image || '🎮'}</div>
-                    <h2>${currentProduct.name}</h2>
-                    <div style="color: var(--text-muted);">📱 ${currentProduct.game} | ${currentProduct.type.toUpperCase()}</div>
-                </div>
-                <div class="card" style="margin-bottom: 1rem;">
-                    <h4>💰 Harga</h4>
-                    <div style="font-size: 2rem; font-weight: bold; color: var(--success);">Rp ${currentProduct.price.toLocaleString()}</div>
-                    <div style="color: var(--text-muted);">Stok: ${currentProduct.stock}</div>
-                </div>
-                <div class="card" style="margin-bottom: 1rem;">
-                    <h4>📝 Deskripsi</h4>
-                    <p>${currentProduct.description}</p>
-                </div>
-                <div class="card" style="margin-bottom: 1rem;">
-                    <h4>🏪 Toko</h4>
-                    <p>${data.shops.find(s => s.id === currentProduct.shopId)?.name || 'Toko Admin'}</p>
-                </div>
-                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                    <button class="btn btn-primary" onclick="buyProduct('${currentProduct.id}')">🛒 Beli Sekarang</button>
-                    <button class="btn btn-success" onclick="useCoins('${currentProduct.id}')">💰 Bayar Koin</button>
-                    <button class="btn btn-warning" onclick="startLelang('${currentProduct.id}')">🔨 Lelang</button>
-                </div>
-            `;
-            showModal('productModal');
-        }
-
-        function buyProduct(productId) {
-            const data = DB.get();
-            const product = data.products.find(p => p.id === productId);
-            const shop = data.shops.find(s => s.id === product.shopId) || { payments: data.adminPayments };
-
-            if (product.stock <= 0) {
-                alert('Stok habis!');
-                return;
+                
+                toastContainer.appendChild(toast);
+                setTimeout(() => toast.remove(), 4000);
             }
 
-            // Show payment methods
-            const paymentHtml = shop.payments.map((payment, index) => `
-                <div class="card" style="margin-bottom: 1rem;">
-                    <h4>${payment.method}</h4>
-                    <p><strong>${payment.name}</strong></p>
-                    ${payment.method === 'QRIS' ? `<img src="${payment.qrImage || ''}" style="max-width: 200px; border-radius: 10px;">` : ''}
-                    <p style="font-size: 1.2rem; color: var(--accent);">Kode Unik: ${Math.floor(Math.random() * 9000 + 1000)}</p>
-                </div>
-            `).join('');
-
-            if (paymentHtml === '') {
-                paymentHtml = '<p>Toko belum menambahkan metode pembayaran</p>';
+            showSplash() {
+                setTimeout(() => {
+                    document.getElementById('loadingScreen').classList.add('hidden');
+                    document.getElementById('app').classList.remove('hidden');
+                    if (!this.currentUser) {
+                        this.showPage('login');
+                    } else {
+                        this.showPage('home');
+                    }
+                }, 1500);
             }
 
-            const orderConfirm = `
-                <div class="card">
-                    <h3>✅ Konfirmasi Pesanan</h3>
-                    <p><strong>${product.name}</strong></p>
-                    <p>Rp ${product.price.toLocaleString()}</p>
-                    <div style="margin: 1rem 0;">${paymentHtml}</div>
-                    <div style="display: flex; gap: 0.5rem;">
-                        <button class="btn btn-success" onclick="confirmOrder('${productId}', '${product.shopId}')">✅ Konfirmasi & Chat Penjual</button>
-                        <button class="btn btn-danger" onclick="closeModal()">❌ Batal</button>
-                    </div>
-                </div>
-            `;
+            // ===== AUTH METHODS ===== (implement as needed)
+            async checkAuth() {
+                const userData = localStorage.getItem('3m_currentUser');
+                if (userData) {
+                    this.currentUser = JSON.parse(userData);
+                }
+            }
 
-            document.body.innerHTML += `
-                <div id="paymentModal" class="modal active" style="z-index: 10001;">
-                    <div class="glass modal-content glow">${orderConfirm}</div>
-                </div>
-            `;
-        }
+            updateCoinDisplay() {
+                const coinSpan = document.getElementById('coinAmount');
+                if (coinSpan) {
+                    coinSpan.textContent = this.currentUser?.coins || 0;
+                }
+            }
 
-        function confirmOrder(productId, shopId) {
-            const data = DB.get();
-            const product = data.products.find(p => p.id === productId);
-            
-            const order = {
-                id: Date.now().toString(),
-                buyerId: currentUser.id,
-                shopId,
-                productId,
-                status: 'pending',
-                price: product.price,
-                createdAt: new Date().toISOString(),
-                chatId: `order_${Date.now()}`
-            };
+            updateNotificationBadge() {
+                const unreadCount = this.db.notifications.filter(n => !n.read).length;
+                const badge = document.getElementById('notificationBadge');
+                if (badge) {
+                    badge.textContent = unreadCount;
+                    badge.classList.toggle('hidden', unreadCount === 0);
+                }
+            }
 
-            data.orders.push(order);
-            data.products.find(p => p.id === productId).stock--;
-            
-            // Create chat room
-            data.chats[order.chatId] = {
-                messages: [],
-                participants: [currentUser.id, shopId || 'admin']
-            };
-
-            // Add coins to admin
-            const coinRate = 1; // 1 koin per Rp2000
-            const adminCoins = Math.floor(product.price / 2000) * coinRate;
-            if (!data.coins['admin']) data.coins['admin'] = 0;
-            data.coins['admin'] += adminCoins;
-
-            DB.set(data);
-            closeModal();
-            alert('Pesanan berhasil! Chat dengan penjual akan terbuka otomatis.');
-            showChat(`order_${order.id}`);
-        }
-
-        // Chat System
-        function showChat(chatId) {
-            currentChat = chatId;
-            const data = DB.get();
-            const chat = data.chats[chatId];
-            if (!chat) return;
-
-            const participants = chat.participants.map(p => {
-                const user = data.users.find(u => u.id === p) || 
-                           data.shops.find(s => s.id === p) || 
-                           { name: 'Admin', id: 'admin' };
-                return user.name;
-            });
-
-            document.getElementById('chatHeader').innerHTML = `
-                <h3>💬 Chat ${participants.join(' - ')}</h3>
-            `;
-
-            document.getElementById('chatMessages').innerHTML = chat.messages.map(msg => `
-                <div class="message ${msg.sender === currentUser.id ? 'own' : 'other'}">
-                    <div class="message-bubble">
-                        ${msg.image ? `<img src="${msg.image}" style="max-width: 150px; border-radius: 10px; margin-bottom: 0.5rem;">` : ''}
-                        <div>${msg.text}</div>
-                        <div style="font-size: 0.8rem; opacity: 0.7; margin-top: 0.3rem;">${new Date(msg.timestamp).toLocaleTimeString()}</div>
-                    </div>
-                </div>
-            `).join('');
-
-            showModal('chatModal');
-            document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
-        }
-
-        function sendMessage() {
-            const input = document.getElementById('chatInput');
-            const text = input.value.trim();
-            if (!text && !document.getElementById('chatImage').files[0]) return;
-
-            const data = DB.get();
-            const chat = data.chats[currentChat];
-            if (!chat) return;
-
-            if (text) {
-                chat.messages.push({
-                    sender: currentUser.id,
-                    text,
-                    timestamp: new Date().toISOString()
+            updateActiveNav(page) {
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    btn.classList.remove('nav-active');
+                });
+                document.querySelectorAll(`.nav-btn[data-page="${page}"]`).forEach(btn => {
+                    btn.classList.add('nav-active');
                 });
             }
-
-            DB.set(data);
-            input.value = '';
-            showChat(currentChat);
         }
 
-        function handleKeypress(event) {
-            if (event.key === 'Enter') {
-                sendMessage();
-            }
-        }
-
-        // UI Updates
-        function updateUI() {
-            const data = DB.get();
-            const isAdmin = currentUser && currentUser.id === 'admin';
-            const hasShop = data.shops.find(s => s.ownerId === currentUser?.id);
-
-            // Update nav tabs
-            document.querySelector('[data-tab="admin"]').style.display = isAdmin ? 'block' : 'none';
-            
-            if (currentUser) {
-                document.querySelector('.logo').innerHTML = `🎮 3+Market <span style="color: var(--success); font-size: 0.8em;">${currentUser.coins || 0} 💰</span>`;
-            }
-        }
-
-        function switchTab(tab) {
-            selectedTab = tab;
-            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-            document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
-            
-            const content = document.getElementById('sidebarContent');
-            content.innerHTML = getTabContent(tab);
-        }
-
-        function getTabContent(tab) {
-            if (!currentUser) return '<p>Silakan login terlebih dahulu</p>';
-
-            switch(tab) {
-                case 'home':
-                    return '<div class="card"><h3>🏠 Home</h3><p>Ini adalah halaman home</p></div>';
-                case 'shop':
-                    return currentUser.role !== 'seller' ? 
-                        '<button class="btn btn-primary" onclick="registerShop()">🏪 Daftar Toko Baru</button>' : 
-                        '<div id="shopManagement"></div>';
-                case 'orders':
-                    return '<div id="ordersList"></div>';
-                case 'chat':
-                    return '<div id="chatList"></div>';
-                case 'coins':
-                    return `
-                        <div class="card">
-                            <h3>💰 Saldo Koin: ${currentUser.coins || 0}</h3>
-                            <button class="btn btn-success" onclick="topupCoins()">Top Up Koin</button>
-                            <button class="btn btn-primary" onclick="showCoinProducts()">Tukar Koin</button>
-                        </div>
-                    `;
-                case 'admin':
-                    return isAdminPanel();
-                case 'lelang':
-                    return '<div id="lelangList"></div>';
-                case 'barter':
-                    return `
-                        <div class="card">
-                            <h3>🔄 Barter Aman</h3>
-                            <p>Bayar Rp7.000 untuk keamanan escrow</p>
-                            <button class="btn btn-warning" onclick="startBarter()">Mulai Barter</button>
-                        </div>
-                    `;
-                default:
-                    return '<p>Tab belum tersedia</p>';
-            }
-        }
-
-        // Demo data generator
-        function generateDemoData() {
-            const data = DB.get();
-            
-            if (data.products.length === 0) {
-                // Add demo products
-                const demoProducts = [
-                    { id: '1', name: 'Akun ML Sultan', game: 'Mobile Legends', type: 'akun', price: 250000, stock: 5, description: 'Rank Mythic Glory', shopId: 'shop1', color: '#ff6b6b' },
-                    { id: '2', name: 'Skin FF Ultra', game: 'Free Fire', type: 'item', price: 150000, stock: 10, description: 'Bundle eksklusif', shopId: 'admin', color: '#4ecdc4' },
-                    { id: '3', name: 'Jasa Rank PUBG', game: 'PUBG Mobile', type: 'jasa', price: 75000, stock: 20, description: 'Conqueror guaranteed', shopId: 'shop1', color: '#45b7d1' }
-                ];
-                
-                data.products = demoProducts;
-                DB.set(data);
-            }
-        }
-
-        // Initialize demo data
-        generateDemoData();
-
-        // Auto-save current user changes
-        setInterval(() => {
-            if (currentUser) {
-                const data = DB.get();
-                const userIndex = data.users.findIndex(u => u.id === currentUser.id);
-                if (userIndex !== -1) {
-                    data.users[userIndex] = { ...data.users[userIndex], ...currentUser };
-                    DB.set(data);
-                }
-            }
-        }, 5000);
-
-        // Load initial content
-        document.addEventListener('DOMContentLoaded', () => {
-            updateUI();
-            document.getElementById('navTabs').addEventListener('click', (e) => {
-                if (e.target.dataset.tab) {
-                    switchTab(e.target.dataset.tab);
-                }
-            });
-        });
-
-        function closeModal() {
-            document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
-        }
-
-        // Global close modal on backdrop click
-        document.addEventListener('click', (e) => {
-            if (e.target.classList.contains('modal')) {
-                closeModal();
-            }
-        });
-
-        // Additional functions for full functionality
-        function registerShop() {
-            const shopName = prompt('Nama toko unik:');
-            if (!shopName) return;
-
-            const data = DB.get();
-            if (data.shops.find(s => s.name === shopName)) {
-                alert('Nama toko sudah digunakan!');
-                return;
-            }
-
-            data.shops.push({
-                id: Date.now().toString(),
-                name: shopName,
-                ownerId: currentUser.id,
-                payments: [],
-                blocked: false
-            });
-
-            currentUser.role = 'seller';
-            DB.set(data);
-            alert('Toko berhasil didaftarkan!');
-            switchTab('shop');
-        }
-
-        function isAdminPanel() {
-            return `
-                <div class="card">
-                    <h3>⚙️ Admin Panel</h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-                        <button class="btn btn-primary" onclick="manageShops()">🏪 Kelola Toko</button>
-                        <button class="btn btn-success" onclick="manageCoinProducts()">💰 Produk Koin</button>
-                        <button class="btn btn-warning" onclick="manageOrders()">📦 Pesanan</button>
-                        <button class="btn btn-danger" onclick="viewReports()">📝 Laporan</button>
-                        <button class="btn btn-secondary" onclick="broadcastMessage()">📢 Siaran</button>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Placeholder for additional features
-        function topupCoins() {
-            alert('Fitur top up koin (integrasi payment gateway)');
-        }
-
-        function startLelang(productId) {
-            alert('Fitur lelang akan ditampilkan di sini!');
-        }
-
-        function startBarter() {
-            alert('Fitur barter aman dengan escrow Rp7.000');
-        }
-
-        // Real-time updates
-        setInterval(() => {
-            if (document.getElementById('productsGrid')) {
-                loadProducts();
-            }
-        }, 2000);
-
-        console.log('🎮 3+Market Games fully loaded! All features available.');
+        // Initialize app
+        const app = new MarketApp();
+        window.app = app;
     </script>
 </body>
 </html>
