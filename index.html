@@ -1,460 +1,3226 @@
-<!DOCTYPE html>
+
+html_content = '''<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3+Market Games - Marketplace + Lelang + Barter</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>3+Market Games - Marketplace Game</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #0ea5e9;
+            --primary-dark: #0284c7;
+            --secondary: #06b6d4;
+            --accent: #8b5cf6;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-hover: #334155;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --border: #334155;
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 25%, #16213e 50%, #0f0f23 100%); 
-            color: #e2e8f0; 
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            min-height: 100vh;
             overflow-x: hidden;
         }
-        .glass { 
-            background: rgba(255,255,255,0.08); 
-            backdrop-filter: blur(20px); 
-            border: 1px solid rgba(255,255,255,0.12); 
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        .hidden { display: none !important; }
+        .fade-in { animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Layout */
+        .app-container { display: flex; min-height: 100vh; }
+        .sidebar {
+            width: 260px;
+            background: var(--bg-card);
+            border-right: 1px solid var(--border);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+            transition: transform 0.3s;
         }
-        .glass-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .glass-hover:hover { 
-            background: rgba(255,255,255,0.15); 
-            transform: translateY(-4px); 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        .sidebar.collapsed { transform: translateX(-100%); }
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
-        .gradient-text { 
-            background: linear-gradient(135deg, #00d4ff 0%, #0099cc 50%, #0077b6 100%);
-            -webkit-background-clip: text; 
-            -webkit-text-fill-color: transparent; 
-            background-clip: text;
-            font-family: 'Orbitron', monospace;
+        .sidebar-header i { font-size: 28px; color: var(--primary); }
+        .sidebar-header h1 { font-size: 20px; background: linear-gradient(90deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .nav-menu { padding: 10px; }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 4px;
+            color: var(--text-muted);
         }
-        .neon-glow { 
-            box-shadow: 0 0 20px rgba(0,212,255,0.5);
-            transition: all 0.3s ease;
+        .nav-item:hover, .nav-item.active { background: var(--bg-hover); color: var(--text); }
+        .nav-item i { width: 24px; text-align: center; }
+        .nav-section { padding: 8px 16px; font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-top: 10px; letter-spacing: 1px; }
+        
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 20px;
+            padding-bottom: 80px;
         }
-        .neon-glow:hover { box-shadow: 0 0 30px rgba(0,212,255,0.8); }
-        .scrollbar-thin::-webkit-scrollbar { width: 8px; height: 8px; }
-        .scrollbar-thin::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 10px; }
-        .scrollbar-thin::-webkit-scrollbar-thumb { 
-            background: linear-gradient(45deg, #00d4ff, #0099cc); 
-            border-radius: 10px; 
+        
+        /* Bottom Nav */
+        .bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            border-top: 1px solid var(--border);
+            z-index: 99;
+            justify-content: space-around;
+            padding: 8px 0;
         }
-        .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: linear-gradient(45deg, #0099cc, #0077b6); }
-        .fade-in { animation: fadeIn 0.6s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .pulse-glow { animation: pulseGlow 2s infinite; }
-        @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 20px rgba(0,212,255,0.3); } 50% { box-shadow: 0 0 30px rgba(0,212,255,0.6); } }
-        .sidebar { background: rgba(15,15,35,0.95); backdrop-filter: blur(20px); }
-        .nav-active { background: rgba(0,212,255,0.2) !important; ring: 2px solid #00d4ff !important; }
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--text-muted);
+            font-size: 11px;
+            cursor: pointer;
+            padding: 4px 12px;
+        }
+        .bottom-nav-item.active { color: var(--primary); }
+        .bottom-nav-item i { font-size: 20px; }
+        
+        /* Header */
+        .top-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding: 16px 20px;
+            background: var(--bg-card);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+        }
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: var(--bg-dark);
+            border-radius: 10px;
+            padding: 10px 16px;
+            gap: 10px;
+            flex: 1;
+            max-width: 400px;
+            border: 1px solid var(--border);
+        }
+        .search-box input {
+            background: none;
+            border: none;
+            color: var(--text);
+            outline: none;
+            width: 100%;
+            font-size: 14px;
+        }
+        .user-info { display: flex; align-items: center; gap: 12px; }
+        .coin-badge {
+            background: linear-gradient(135deg, var(--warning), #d97706);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        
+        /* Cards */
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 10px 40px rgba(14, 165, 233, 0.15); }
+        .card-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            background: var(--bg-hover);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+        }
+        .card-img img { width: 100%; height: 100%; object-fit: cover; }
+        .card-body { padding: 16px; }
+        .card-title { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+        .card-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
+        .price { color: var(--primary); font-weight: 700; font-size: 18px; }
+        .badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .badge-success { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+        .badge-warning { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+        .badge-danger { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+        .badge-primary { background: rgba(14, 165, 233, 0.2); color: var(--primary); }
+        
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-warning { background: var(--warning); color: white; }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+        .btn-outline:hover { background: var(--bg-hover); }
+        .btn-sm { padding: 6px 12px; font-size: 12px; }
+        
+        /* Forms */
+        .form-group { margin-bottom: 16px; }
+        .form-label { display: block; margin-bottom: 6px; font-size: 13px; color: var(--text-muted); font-weight: 500; }
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--primary); }
+        .form-textarea { min-height: 100px; resize: vertical; }
+        
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        .modal {
+            background: var(--bg-card);
+            border-radius: 20px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+        }
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-body { padding: 20px; }
+        .modal-footer { padding: 16px 20px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; }
+        
+        /* Chat */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 200px);
+            background: var(--bg-card);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .chat-message {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .chat-message.sent {
+            align-self: flex-end;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-bottom-right-radius: 4px;
+        }
+        .chat-message.received {
+            align-self: flex-start;
+            background: var(--bg-hover);
+            border-bottom-left-radius: 4px;
+        }
+        .chat-message img { max-width: 200px; border-radius: 8px; margin-top: 8px; }
+        .chat-input {
+            display: flex;
+            gap: 10px;
+            padding: 16px;
+            border-top: 1px solid var(--border);
+            background: var(--bg-dark);
+        }
+        .chat-input input { flex: 1; }
+        
+        /* Tables */
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { color: var(--text-muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+        tr:hover { background: var(--bg-hover); }
+        
+        /* Tabs */
+        .tabs { display: flex; gap: 4px; background: var(--bg-dark); padding: 4px; border-radius: 12px; margin-bottom: 20px; }
+        .tab { padding: 10px 20px; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 500; color: var(--text-muted); transition: all 0.2s; }
+        .tab.active { background: var(--primary); color: white; }
+        
+        /* Stats */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .stat-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid var(--border);
+        }
+        .stat-value { font-size: 28px; font-weight: 700; margin: 8px 0; }
+        .stat-label { color: var(--text-muted); font-size: 13px; }
+        .stat-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        
+        /* OTP */
+        .otp-inputs { display: flex; gap: 10px; justify-content: center; margin: 20px 0; }
+        .otp-inputs input {
+            width: 50px;
+            height: 56px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 700;
+            background: var(--bg-dark);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+        }
+        .otp-inputs input:focus { border-color: var(--primary); outline: none; }
+        
+        /* Toast */
+        .toast-container { position: fixed; top: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; }
+        .toast {
+            padding: 14px 20px;
+            border-radius: 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .main-content { margin-left: 0; padding: 16px; padding-bottom: 80px; }
+            .bottom-nav { display: flex; }
+            .card-grid { grid-template-columns: 1fr; }
+            .top-header { flex-direction: column; gap: 12px; }
+            .search-box { max-width: 100%; width: 100%; }
+        }
+        
+        /* Animations */
+        .pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        
+        .game-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 12px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+        .empty-state i { font-size: 64px; margin-bottom: 16px; opacity: 0.5; }
+        
+        /* QR Code placeholder */
+        .qris-box {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            color: #333;
+        }
+        .qris-box img { max-width: 200px; }
+        
+        /* Auction */
+        .auction-timer {
+            background: linear-gradient(135deg, var(--danger), #b91c1c);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* Market Price */
+        .market-price-card {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.1), rgba(139, 92, 246, 0.1));
+            border: 1px solid var(--primary);
+            border-radius: 16px;
+            padding: 20px;
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: var(--bg-hover); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--border); }
     </style>
 </head>
 <body>
-    <!-- Loading Screen -->
-    <div id="loadingScreen" class="fixed inset-0 bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 z-50 flex items-center justify-center">
-        <div class="text-center fade-in">
-            <div class="w-28 h-28 border-4 border-transparent border-t-cyan-400 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-full flex items-center justify-center mb-6 glass p-4 pulse-glow">
-                <i class="fas fa-gamepad text-4xl text-cyan-400"></i>
-            </div>
-            <div class="gradient-text text-3xl md:text-4xl font-bold mb-2 tracking-wide">3+MARKET GAMES</div>
-            <div class="text-lg text-cyan-400 font-medium flex items-center gap-2 justify-center">
-                <div class="w-6 h-6 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
-                Memuat platform...
+    <div id="app">
+        <!-- Auth Screen -->
+        <div id="auth-screen" class="app-container">
+            <div style="flex:1; display:flex; align-items:center; justify-content:center; padding:20px;">
+                <div style="max-width:420px; width:100%;">
+                    <div style="text-align:center; margin-bottom:40px;">
+                        <div style="width:80px; height:80px; background:linear-gradient(135deg, var(--primary), var(--accent)); border-radius:24px; display:flex; align-items:center; justify-content:center; margin:0 auto 20px; font-size:36px;">🎮</div>
+                        <h1 style="font-size:32px; margin-bottom:8px;">3+Market Games</h1>
+                        <p style="color:var(--text-muted);">Marketplace Jual Beli Akun, Item & Jasa Game</p>
+                    </div>
+                    
+                    <div id="auth-tabs" class="tabs" style="margin-bottom:24px;">
+                        <div class="tab active" onclick="switchAuthTab('login')">Login</div>
+                        <div class="tab" onclick="switchAuthTab('register')">Daftar</div>
+                    </div>
+                    
+                    <div id="login-form" class="fade-in">
+                        <div class="form-group">
+                            <label class="form-label">Email / Nama Pengguna</label>
+                            <input type="text" class="form-input" id="login-email" placeholder="Masukkan email atau nama">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Password</label>
+                            <input type="password" class="form-input" id="login-password" placeholder="Masukkan password">
+                        </div>
+                        <button class="btn btn-primary" style="width:100%; justify-content:center; padding:14px;" onclick="handleLogin()">
+                            <i class="fas fa-sign-in-alt"></i> Masuk
+                        </button>
+                        <div style="text-align:center; margin-top:16px; color:var(--text-muted); font-size:13px;">
+                            Admin: <code>admin3market</code> / <code>admin123</code>
+                        </div>
+                    </div>
+                    
+                    <div id="register-form" class="hidden fade-in">
+                        <div class="form-group">
+                            <label class="form-label">Nama Lengkap</label>
+                            <input type="text" class="form-input" id="reg-name" placeholder="Nama lengkap">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-input" id="reg-email" placeholder="email@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Password</label>
+                            <input type="password" class="form-input" id="reg-password" placeholder="Minimal 6 karakter">
+                        </div>
+                        <button class="btn btn-primary" style="width:100%; justify-content:center; padding:14px;" onclick="handleRegister()">
+                            <i class="fas fa-user-plus"></i> Daftar Sekarang
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-
-    <!-- Main App -->
-    <div id="app" class="hidden min-h-screen">
-        <!-- Enhanced Navbar -->
-        <nav class="glass fixed top-0 left-0 right-0 z-50 px-6 py-4 flex justify-between items-center backdrop-blur-xl">
-            <div class="flex items-center gap-4">
-                <button id="mobileMenuBtn" class="lg:hidden p-2.5 glass rounded-xl hover:bg-white/10 transition-all">
-                    <i class="fas fa-bars text-xl text-cyan-400"></i>
-                </button>
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center glass-hover">
-                        <i class="fas fa-store text-white text-lg"></i>
+        
+        <!-- OTP Modal -->
+        <div id="otp-modal" class="modal-overlay hidden">
+            <div class="modal" style="max-width:400px;">
+                <div class="modal-header">
+                    <h3><i class="fas fa-shield-alt" style="color:var(--primary);"></i> Verifikasi OTP</h3>
+                    <button class="btn btn-sm btn-outline" onclick="closeOtp()"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="modal-body" style="text-align:center;">
+                    <p style="color:var(--text-muted); margin-bottom:20px;">Masukkan kode OTP yang dikirim ke email Anda.<br><small>(Demo: 123456)</small></p>
+                    <div class="otp-inputs">
+                        <input type="text" maxlength="1" onkeyup="otpNext(this, 0)">
+                        <input type="text" maxlength="1" onkeyup="otpNext(this, 1)">
+                        <input type="text" maxlength="1" onkeyup="otpNext(this, 2)">
+                        <input type="text" maxlength="1" onkeyup="otpNext(this, 3)">
+                        <input type="text" maxlength="1" onkeyup="otpNext(this, 4)">
+                        <input type="text" maxlength="1" onkeyup="otpNext(this, 5)">
                     </div>
-                    <div>
-                        <h1 class="gradient-text text-2xl font-bold tracking-tight">3+MARKET</h1>
-                        <div class="text-xs text-cyan-400 font-medium">GAMES</div>
-                    </div>
+                    <button class="btn btn-primary" style="width:100%;" onclick="verifyOtp()">Verifikasi</button>
                 </div>
             </div>
-            <div class="flex items-center gap-3">
-                <div class="glass px-4 py-2.5 rounded-2xl text-sm font-medium flex items-center gap-2 glass-hover">
-                    <i class="fas fa-coins text-yellow-400"></i>
-                    <span id="coinAmount" class="font-bold text-lg">0</span> <span class="text-xs">Koin</span>
+        </div>
+        
+        <!-- Main App -->
+        <div id="main-app" class="hidden">
+            <!-- Sidebar -->
+            <aside class="sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <i class="fas fa-gamepad"></i>
+                    <h1>3+Market</h1>
                 </div>
-                <button id="notificationBtn" class="relative p-2.5 glass rounded-2xl glass-hover">
-                    <i class="fas fa-bell text-xl"></i>
-                    <span id="notificationBadge" class="absolute -top-1 -right-1 bg-red-500 text-xs w-6 h-6 rounded-full flex items-center justify-center font-bold hidden">0</span>
-                </button>
-                <button id="profileBtn" class="w-12 h-12 glass rounded-2xl flex items-center justify-center glass-hover">
-                    <i class="fas fa-user text-lg"></i>
-                </button>
-            </div>
-        </nav>
-
-        <!-- Main Layout -->
-        <div class="flex h-screen pt-20">
-            <!-- Enhanced Sidebar -->
-            <div id="sidebar" class="sidebar fixed inset-y-20 left-0 w-72 z-40 h-[calc(100vh-5rem)] transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out overflow-y-auto scrollbar-thin p-6 space-y-6">
-                <div id="sidebarContent"></div>
-            </div>
-
+                <div class="nav-menu" id="sidebar-nav">
+                    <!-- Dynamic nav items -->
+                </div>
+            </aside>
+            
             <!-- Main Content -->
-            <div class="flex-1 ml-0 lg:ml-72 pt-8 pb-24 px-6 lg:px-12 overflow-y-auto scrollbar-thin h-[calc(100vh-5rem)]" id="pagesContainer">
-                <!-- Dynamic content loaded here -->
-            </div>
+            <main class="main-content" id="main-content">
+                <!-- Dynamic content -->
+            </main>
+            
+            <!-- Bottom Nav -->
+            <nav class="bottom-nav" id="bottom-nav">
+                <!-- Dynamic bottom nav -->
+            </nav>
         </div>
-
-        <!-- Modals -->
-        <div id="profileModal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 hidden flex items-center justify-center p-6">
-            <div class="glass max-w-md w-full rounded-3xl p-8 glass-hover max-h-[90vh] overflow-y-auto">
-                <div class="flex justify-between items-center mb-8">
-                    <h2 class="gradient-text text-3xl font-bold">👤 Profil</h2>
-                    <button id="closeProfileModal" class="p-2 hover:bg-white/10 rounded-2xl transition-all">
-                        <i class="fas fa-times text-xl"></i>
-                    </button>
-                </div>
-                <div id="profileContent" class="space-y-4"></div>
-                <div class="mt-10 pt-8 border-t border-white/10">
-                    <button id="logoutBtn" class="w-full bg-gradient-to-r from-red-600 to-red-700 py-4 rounded-2xl font-bold text-lg neon-glow hover:from-red-700 hover:to-red-800">
-                        <i class="fas fa-sign-out-alt mr-2"></i>Keluar
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Notification Modal -->
-        <div id="notificationModal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 hidden flex items-center justify-center p-6">
-            <div class="glass w-full max-w-lg max-h-[80vh] rounded-3xl overflow-hidden glass-hover">
-                <div class="p-8 border-b border-white/10">
-                    <h2 class="gradient-text text-2xl font-bold flex items-center gap-3">
-                        <i class="fas fa-bell"></i>Notifikasi
-                    </h2>
-                </div>
-                <div id="notificationList" class="p-6 max-h-96 overflow-y-auto scrollbar-thin space-y-3"></div>
-            </div>
-        </div>
-
+        
         <!-- Toast Container -->
-        <div id="toastContainer" class="fixed top-24 right-6 z-50 space-y-2 hidden"></div>
+        <div class="toast-container" id="toast-container"></div>
     </div>
 
-    <script>
-        class MarketApp {
-            constructor() {
-                this.db = {};
-                this.currentUser = null;
-                this.currentPage = 'home';
-                this.init();
-            }
+<script>
+// ==================== DATA STORE ====================
+const Store = {
+    init() {
+        if (!localStorage.getItem('3market_init')) {
+            localStorage.setItem('3market_users', JSON.stringify([]));
+            localStorage.setItem('3market_shops', JSON.stringify([]));
+            localStorage.setItem('3market_products', JSON.stringify([]));
+            localStorage.setItem('3market_orders', JSON.stringify([]));
+            localStorage.setItem('3market_chats', JSON.stringify([]));
+            localStorage.setItem('3market_groups', JSON.stringify([]));
+            localStorage.setItem('3market_coin_products', JSON.stringify([]));
+            localStorage.setItem('3market_coin_requests', JSON.stringify([]));
+            localStorage.setItem('3market_reports', JSON.stringify([]));
+            localStorage.setItem('3market_auctions', JSON.stringify([]));
+            localStorage.setItem('3market_barters', JSON.stringify([]));
+            localStorage.setItem('3market_announcements', JSON.stringify([]));
+            localStorage.setItem('3market_admin_messages', JSON.stringify([]));
+            localStorage.setItem('3market_market_prices', JSON.stringify([]));
+            localStorage.setItem('3market_init', 'true');
+        }
+    },
+    get(key) { return JSON.parse(localStorage.getItem('3market_' + key) || '[]'); },
+    set(key, val) { localStorage.setItem('3market_' + key, JSON.stringify(val)); },
+    currentUser: null,
+    currentShop: null
+};
+Store.init();
 
-            // ===== CORE INITIALIZATION =====
-            async init() {
-                this.loadData();
-                this.initDemoData();
-                this.bindGlobalEvents();
-                await this.checkAuth();
-                this.updateUI();
-                this.showSplash();
-            }
+// ==================== STATE ====================
+let currentPage = 'home';
+let currentChatId = null;
+let currentGroupId = null;
+let tempRegisterData = null;
+let tempOrderData = null;
 
-            loadData() {
-                const keys = ['users', 'stores', 'products', 'orders', 'auctions', 'barters', 'coinProducts', 'notifications'];
-                keys.forEach(key => {
-                    const data = localStorage.getItem(`3m_${key}`);
-                    this.db[key] = data ? JSON.parse(data) : [];
-                });
-            }
+// ==================== AUTH ====================
+function switchAuthTab(tab) {
+    document.querySelectorAll('#auth-tabs .tab').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById('login-form').classList.toggle('hidden', tab !== 'login');
+    document.getElementById('register-form').classList.toggle('hidden', tab !== 'register');
+}
 
-            saveData() {
-                Object.keys(this.db).forEach(key => {
-                    localStorage.setItem(`3m_${key}`, JSON.stringify(this.db[key]));
-                });
-            }
+function handleRegister() {
+    const name = document.getElementById('reg-name').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const password = document.getElementById('reg-password').value;
+    
+    if (!name || !email || !password) { showToast('Lengkapi semua field', 'error'); return; }
+    if (password.length < 6) { showToast('Password minimal 6 karakter', 'error'); return; }
+    
+    const users = Store.get('users');
+    if (users.find(u => u.email === email)) { showToast('Email sudah terdaftar', 'error'); return; }
+    
+    tempRegisterData = { name, email, password, id: Date.now().toString(), coins: 0, role: 'buyer', createdAt: new Date().toISOString() };
+    document.getElementById('otp-modal').classList.remove('hidden');
+    showToast('Kode OTP: 123456', 'info');
+}
 
-            // ===== UI RENDERING =====
-            updateUI() {
-                this.updateSidebar();
-                this.updateCoinDisplay();
-                this.updateNotificationBadge();
-            }
+function otpNext(input, idx) {
+    if (input.value && idx < 5) input.parentElement.children[idx + 1].focus();
+}
 
-            updateSidebar() {
-                const sidebar = document.getElementById('sidebarContent');
-                if (!sidebar) return;
+function verifyOtp() {
+    const inputs = document.querySelectorAll('.otp-inputs input');
+    const code = Array.from(inputs).map(i => i.value).join('');
+    if (code !== '123456') { showToast('Kode OTP salah', 'error'); return; }
+    
+    const users = Store.get('users');
+    users.push(tempRegisterData);
+    Store.set('users', users);
+    Store.currentUser = tempRegisterData;
+    
+    document.getElementById('otp-modal').classList.add('hidden');
+    showToast('Registrasi berhasil!', 'success');
+    initApp();
+}
 
-                const { currentUser } = this;
-                const isLoggedIn = !!currentUser;
-                const userStore = isLoggedIn ? this.db.stores.find(s => s.ownerId === currentUser.id) : null;
-                const isSeller = isLoggedIn && currentUser.role === 'seller';
-                const isAdmin = isLoggedIn && currentUser.role === 'admin';
+function closeOtp() { document.getElementById('otp-modal').classList.add('hidden'); }
 
-                sidebar.innerHTML = this.renderSidebar(isLoggedIn, currentUser, userStore, isSeller, isAdmin);
-                this.bindSidebarEvents();
-            }
+function handleLogin() {
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    
+    if (!email || !password) { showToast('Lengkapi email dan password', 'error'); return; }
+    
+    // Admin login
+    if (email === 'admin3market' && password === 'admin123') {
+        Store.currentUser = { id: 'admin', name: 'Admin', email: 'admin@3market.com', role: 'admin', coins: 999999 };
+        showToast('Login sebagai Admin berhasil!', 'success');
+        initApp();
+        return;
+    }
+    
+    const users = Store.get('users');
+    const user = users.find(u => (u.email === email || u.name === email) && u.password === password);
+    
+    if (!user) { showToast('Email/password salah', 'error'); return; }
+    
+    Store.currentUser = user;
+    const shops = Store.get('shops');
+    Store.currentShop = shops.find(s => s.ownerId === user.id) || null;
+    
+    showToast('Login berhasil! Selamat datang, ' + user.name, 'success');
+    initApp();
+}
 
-            renderSidebar(isLoggedIn, user, userStore, isSeller, isAdmin) {
-                const profileSection = `
-                    <div class="glass p-6 rounded-3xl mb-8 glass-hover">
-                        <div class="flex items-center gap-4 mb-4">
-                            <div class="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center">
-                                <i class="fas fa-user text-2xl text-white"></i>
+function logout() {
+    Store.currentUser = null;
+    Store.currentShop = null;
+    document.getElementById('auth-screen').classList.remove('hidden');
+    document.getElementById('main-app').classList.add('hidden');
+    showToast('Berhasil logout', 'info');
+}
+
+// ==================== APP INIT ====================
+function initApp() {
+    document.getElementById('auth-screen').classList.add('hidden');
+    document.getElementById('main-app').classList.remove('hidden');
+    renderSidebar();
+    renderBottomNav();
+    navigate('home');
+}
+
+// ==================== NAVIGATION ====================
+function navigate(page) {
+    currentPage = page;
+    renderSidebar();
+    renderBottomNav();
+    
+    const content = document.getElementById('main-content');
+    content.innerHTML = '';
+    
+    switch(page) {
+        case 'home': renderHome(content); break;
+        case 'search': renderSearch(content); break;
+        case 'orders': renderOrders(content); break;
+        case 'chats': renderChats(content); break;
+        case 'groups': renderGroups(content); break;
+        case 'coin-exchange': renderCoinExchange(content); break;
+        case 'auctions': renderAuctions(content); break;
+        case 'barters': renderBarters(content); break;
+        case 'reports': renderReports(content); break;
+        case 'shop': renderShop(content); break;
+        case 'shop-orders': renderShopOrders(content); break;
+        case 'shop-products': renderShopProducts(content); break;
+        case 'shop-payments': renderShopPayments(content); break;
+        case 'shop-coin-orders': renderShopCoinOrders(content); break;
+        case 'shop-market-price': renderShopMarketPrice(content); break;
+        case 'shop-calculator': renderShopCalculator(content); break;
+        case 'shop-coin-exchange': renderShopCoinExchange(content); break;
+        case 'shop-messages': renderShopMessages(content); break;
+        case 'admin-dashboard': renderAdminDashboard(content); break;
+        case 'admin-shops': renderAdminShops(content); break;
+        case 'admin-orders': renderAdminOrders(content); break;
+        case 'admin-coin-products': renderAdminCoinProducts(content); break;
+        case 'admin-coin-requests': renderAdminCoinRequests(content); break;
+        case 'admin-products': renderAdminProducts(content); break;
+        case 'admin-reports': renderAdminReports(content); break;
+        case 'admin-announcements': renderAdminAnnouncements(content); break;
+        case 'admin-coins': renderAdminCoins(content); break;
+        case 'profile': renderProfile(content); break;
+    }
+    
+    window.scrollTo(0, 0);
+}
+
+// ==================== SIDEBAR ====================
+function renderSidebar() {
+    const nav = document.getElementById('sidebar-nav');
+    const user = Store.currentUser;
+    if (!user) return;
+    
+    let html = '';
+    
+    if (user.role === 'buyer' || user.role === 'seller') {
+        html += `
+            <div class="nav-section">Pembeli</div>
+            <div class="nav-item ${currentPage==='home'?'active':''}" onclick="navigate('home')"><i class="fas fa-home"></i> Beranda</div>
+            <div class="nav-item ${currentPage==='search'?'active':''}" onclick="navigate('search')"><i class="fas fa-search"></i> Cari Produk</div>
+            <div class="nav-item ${currentPage==='orders'?'active':''}" onclick="navigate('orders')"><i class="fas fa-shopping-bag"></i> Pesanan Saya</div>
+            <div class="nav-item ${currentPage==='chats'?'active':''}" onclick="navigate('chats')"><i class="fas fa-comments"></i> Chat</div>
+            <div class="nav-item ${currentPage==='groups'?'active':''}" onclick="navigate('groups')"><i class="fas fa-users"></i> Grup Chat</div>
+            <div class="nav-item ${currentPage==='coin-exchange'?'active':''}" onclick="navigate('coin-exchange')"><i class="fas fa-coins"></i> Tukar Koin</div>
+            <div class="nav-item ${currentPage==='auctions'?'active':''}" onclick="navigate('auctions')"><i class="fas fa-gavel"></i> Lelang</div>
+            <div class="nav-item ${currentPage==='barters'?'active':''}" onclick="navigate('barters')"><i class="fas fa-exchange-alt"></i> Barter</div>
+            <div class="nav-item ${currentPage==='reports'?'active':''}" onclick="navigate('reports')"><i class="fas fa-flag"></i> Lapor</div>
+        `;
+    }
+    
+    if (user.role === 'seller') {
+        html += `
+            <div class="nav-section">Penjual</div>
+            <div class="nav-item ${currentPage==='shop'?'active':''}" onclick="navigate('shop')"><i class="fas fa-store"></i> Toko Saya</div>
+            <div class="nav-item ${currentPage==='shop-orders'?'active':''}" onclick="navigate('shop-orders')"><i class="fas fa-box"></i> Pesanan Masuk</div>
+            <div class="nav-item ${currentPage==='shop-products'?'active':''}" onclick="navigate('shop-products')"><i class="fas fa-box-open"></i> Produk Saya</div>
+            <div class="nav-item ${currentPage==='shop-payments'?'active':''}" onclick="navigate('shop-payments')"><i class="fas fa-credit-card"></i> Metode Bayar</div>
+            <div class="nav-item ${currentPage==='shop-coin-orders'?'active':''}" onclick="navigate('shop-coin-orders')"><i class="fas fa-coins"></i> Pesanan Koin</div>
+            <div class="nav-item ${currentPage==='shop-market-price'?'active':''}" onclick="navigate('shop-market-price')"><i class="fas fa-chart-line"></i> Harga Pasar</div>
+            <div class="nav-item ${currentPage==='shop-calculator'?'active':''}" onclick="navigate('shop-calculator')"><i class="fas fa-calculator"></i> Kalkulator</div>
+            <div class="nav-item ${currentPage==='shop-coin-exchange'?'active':''}" onclick="navigate('shop-coin-exchange')"><i class="fas fa-hand-holding-usd"></i> Tukar Koin</div>
+            <div class="nav-item ${currentPage==='shop-messages'?'active':''}" onclick="navigate('shop-messages')"><i class="fas fa-envelope"></i> Pesan Admin</div>
+        `;
+    }
+    
+    if (user.role === 'admin') {
+        html += `
+            <div class="nav-section">Admin</div>
+            <div class="nav-item ${currentPage==='admin-dashboard'?'active':''}" onclick="navigate('admin-dashboard')"><i class="fas fa-chart-pie"></i> Dashboard</div>
+            <div class="nav-item ${currentPage==='admin-shops'?'active':''}" onclick="navigate('admin-shops')"><i class="fas fa-store"></i> Daftar Toko</div>
+            <div class="nav-item ${currentPage==='admin-orders'?'active':''}" onclick="navigate('admin-orders')"><i class="fas fa-shopping-cart"></i> Pesanan Admin</div>
+            <div class="nav-item ${currentPage==='admin-products'?'active':''}" onclick="navigate('admin-products')"><i class="fas fa-gamepad"></i> Produk Admin</div>
+            <div class="nav-item ${currentPage==='admin-coin-products'?'active':''}" onclick="navigate('admin-coin-products')"><i class="fas fa-coins"></i> Produk Koin</div>
+            <div class="nav-item ${currentPage==='admin-coin-requests'?'active':''}" onclick="navigate('admin-coin-requests')"><i class="fas fa-clipboard-list"></i> Permintaan Koin</div>
+            <div class="nav-item ${currentPage==='admin-coins'?'active':''}" onclick="navigate('admin-coins')"><i class="fas fa-wallet"></i> Kelola Koin</div>
+            <div class="nav-item ${currentPage==='admin-reports'?'active':''}" onclick="navigate('admin-reports')"><i class="fas fa-exclamation-triangle"></i> Laporan</div>
+            <div class="nav-item ${currentPage==='admin-announcements'?'active':''}" onclick="navigate('admin-announcements')"><i class="fas fa-bullhorn"></i> Pengumuman</div>
+        `;
+    }
+    
+    html += `
+        <div class="nav-section">Akun</div>
+        <div class="nav-item ${currentPage==='profile'?'active':''}" onclick="navigate('profile')"><i class="fas fa-user"></i> Profil</div>
+        <div class="nav-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Keluar</div>
+    `;
+    
+    nav.innerHTML = html;
+}
+
+function renderBottomNav() {
+    const nav = document.getElementById('bottom-nav');
+    const user = Store.currentUser;
+    if (!user || user.role === 'admin') { nav.innerHTML = ''; return; }
+    
+    nav.innerHTML = `
+        <div class="bottom-nav-item ${currentPage==='home'?'active':''}" onclick="navigate('home')"><i class="fas fa-home"></i>Home</div>
+        <div class="bottom-nav-item ${currentPage==='shop'||currentPage==='search'?'active':''}" onclick="navigate('${user.role==='seller'?'shop':'search'}')"><i class="fas fa-${user.role==='seller'?'store':'search'}"></i>${user.role==='seller'?'Toko':'Cari'}</div>
+        <div class="bottom-nav-item ${currentPage==='orders'||currentPage==='shop-orders'?'active':''}" onclick="navigate('${user.role==='seller'?'shop-orders':'orders'}')"><i class="fas fa-shopping-bag"></i>Pesanan</div>
+    `;
+}
+
+// ==================== TOAST ====================
+function showToast(message, type='info') {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    const icon = type === 'success' ? 'check-circle' : type === 'error' ? 'times-circle' : type === 'warning' ? 'exclamation-circle' : 'info-circle';
+    const color = type === 'success' ? 'var(--success)' : type === 'error' ? 'var(--danger)' : type === 'warning' ? 'var(--warning)' : 'var(--primary)';
+    toast.innerHTML = `<i class="fas fa-${icon}" style="color:${color};"></i> ${message}`;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+
+// ==================== HOME ====================
+function renderHome(container) {
+    const products = Store.get('products').filter(p => {
+        const shop = Store.get('shops').find(s => s.id === p.shopId);
+        return !shop || !shop.blocked;
+    }).slice(0, 8);
+    const announcements = Store.get('announcements').slice(-3);
+    
+    container.innerHTML = `
+        <div class="top-header">
+            <div class="search-box">
+                <i class="fas fa-search" style="color:var(--text-muted);"></i>
+                <input type="text" placeholder="Cari game, akun, item..." onkeyup="if(event.key==='Enter') navigate('search')">
+            </div>
+            <div class="user-info">
+                <div class="coin-badge"><i class="fas fa-coins"></i> ${Store.currentUser.coins || 0}</div>
+                <div class="avatar">${Store.currentUser.name[0]}</div>
+            </div>
+        </div>
+        
+        ${announcements.length ? `
+        <div style="margin-bottom:24px;">
+            <h3 style="margin-bottom:12px;"><i class="fas fa-bullhorn" style="color:var(--warning);"></i> Pengumuman</h3>
+            <div style="display:flex; gap:12px; overflow-x:auto; padding-bottom:8px;">
+                ${announcements.map(a => `
+                    <div style="min-width:300px; background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:16px;">
+                        <div style="font-weight:600; margin-bottom:4px;">${a.title}</div>
+                        <div style="font-size:13px; color:var(--text-muted);">${a.content}</div>
+                        <div style="font-size:11px; color:var(--text-muted); margin-top:8px;">${new Date(a.date).toLocaleDateString('id-ID')}</div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>` : ''}
+        
+        <div style="margin-bottom:24px;">
+            <h3 style="margin-bottom:16px;"><i class="fas fa-fire" style="color:var(--danger);"></i> Game Populer</h3>
+            <div style="display:flex; gap:16px; overflow-x:auto; padding-bottom:8px;">
+                ${['Mobile Legends','Free Fire','PUBG Mobile','Genshin Impact','Valorant','COD Mobile'].map(game => `
+                    <div style="min-width:120px; text-align:center; cursor:pointer;" onclick="navigate('search')">
+                        <div class="game-icon" style="margin:0 auto;">${game[0]}</div>
+                        <div style="font-size:13px; font-weight:500;">${game}</div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+        
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <h3><i class="fas fa-star" style="color:var(--warning);"></i> Produk Terbaru</h3>
+            <button class="btn btn-sm btn-outline" onclick="navigate('search')">Lihat Semua</button>
+        </div>
+        
+        ${products.length ? `<div class="card-grid">${products.map(p => renderProductCard(p)).join('')}</div>` : `
+            <div class="empty-state">
+                <i class="fas fa-box-open"></i>
+                <h3>Belum ada produk</h3>
+                <p>Produk akan muncul di sini</p>
+            </div>
+        `}
+    `;
+}
+
+function renderProductCard(p) {
+    const shop = Store.get('shops').find(s => s.id === p.shopId);
+    return `
+        <div class="card" onclick="showProductDetail('${p.id}')">
+            <div class="card-img">
+                ${p.image ? `<img src="${p.image}" alt="${p.name}">` : '<i class="fas fa-image" style="font-size:48px;"></i>'}
+            </div>
+            <div class="card-body">
+                <div style="display:flex; gap:8px; margin-bottom:8px;">
+                    <span class="badge badge-primary">${p.game}</span>
+                    <span class="badge badge-success">${p.type}</span>
+                </div>
+                <div class="card-title">${p.name}</div>
+                <div style="font-size:13px; color:var(--text-muted); margin-bottom:8px;">${p.description?.substring(0, 60) || ''}...</div>
+                <div class="card-meta">
+                    <span class="price">Rp ${p.price?.toLocaleString('id-ID')}</span>
+                    <span style="font-size:12px; color:var(--text-muted);">Stok: ${p.stock}</span>
+                </div>
+                ${shop ? `<div style="margin-top:8px; font-size:12px; color:var(--text-muted);"><i class="fas fa-store"></i> ${shop.name}</div>` : ''}
+            </div>
+        </div>
+    `;
+}
+
+// ==================== PRODUCT DETAIL ====================
+function showProductDetail(productId) {
+    const products = Store.get('products');
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+    
+    const shop = Store.get('shops').find(s => s.id === product.shopId);
+    const isAdminProduct = !product.shopId || product.shopId === 'admin';
+    
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal" style="max-width:600px;">
+            <div class="modal-header">
+                <h3>Detail Produk</h3>
+                <button class="btn btn-sm btn-outline" onclick="this.closest('.modal-overlay').remove()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div style="width:100%; height:250px; background:var(--bg-hover); border-radius:12px; display:flex; align-items:center; justify-content:center; margin-bottom:20px; overflow:hidden;">
+                    ${product.image ? `<img src="${product.image}" style="width:100%; height:100%; object-fit:cover;">` : '<i class="fas fa-image" style="font-size:64px; color:var(--text-muted);"></i>'}
+                </div>
+                <div style="display:flex; gap:8px; margin-bottom:12px;">
+                    <span class="badge badge-primary">${product.game}</span>
+                    <span class="badge badge-success">${product.type}</span>
+                </div>
+                <h2 style="margin-bottom:8px;">${product.name}</h2>
+                <div class="price" style="font-size:24px; margin-bottom:16px;">Rp ${product.price?.toLocaleString('id-ID')}</div>
+                <div style="background:var(--bg-dark); padding:16px; border-radius:12px; margin-bottom:16px;">
+                    <div style="font-size:13px; color:var(--text-muted); margin-bottom:4px;">Deskripsi</div>
+                    <div>${product.description || 'Tidak ada deskripsi'}</div>
+                </div>
+                <div style="display:flex; gap:20px; margin-bottom:16px;">
+                    <div><span style="color:var(--text-muted); font-size:13px;">Stok</span><div style="font-weight:600;">${product.stock}</div></div>
+                    <div><span style="color:var(--text-muted); font-size:13px;">Terjual</span><div style="font-weight:600;">${product.sold || 0}</div></div>
+                    ${shop ? `<div><span style="color:var(--text-muted); font-size:13px;">Toko</span><div style="font-weight:600;">${shop.name}</div></div>` : ''}
+                </div>
+            </div>
+            <div class="modal-footer">
+                ${product.coinPrice ? `<button class="btn btn-warning" onclick="buyWithCoin('${product.id}', this.closest('.modal-overlay'))"><i class="fas fa-coins"></i> Beli ${product.coinPrice} Koin</button>` : ''}
+                <button class="btn btn-primary" onclick="buyProduct('${product.id}', this.closest('.modal-overlay'))"><i class="fas fa-shopping-cart"></i> Beli Sekarang</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+function buyProduct(productId, modal) {
+    modal.remove();
+    const product = Store.get('products').find(p => p.id === productId);
+    if (!product) return;
+    
+    const shop = Store.get('shops').find(s => s.id === product.shopId);
+    const payments = shop ? (shop.payments || []) : [];
+    
+    const payModal = document.createElement('div');
+    payModal.className = 'modal-overlay';
+    payModal.innerHTML = `
+        <div class="modal" style="max-width:500px;">
+            <div class="modal-header">
+                <h3>Pembayaran</h3>
+                <button class="btn btn-sm btn-outline" onclick="this.closest('.modal-overlay').remove()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div style="background:var(--bg-dark); padding:16px; border-radius:12px; margin-bottom:20px;">
+                    <div style="font-size:13px; color:var(--text-muted);">Total Pembayaran</div>
+                    <div class="price" style="font-size:28px;">Rp ${product.price?.toLocaleString('id-ID')}</div>
+                    <div style="font-size:13px; margin-top:4px;">${product.name}</div>
+                </div>
+                <div class="form-label">Pilih Metode Pembayaran</div>
+                <div id="payment-methods" style="display:flex; flex-direction:column; gap:10px;">
+                    ${payments.length ? payments.map(pm => `
+                        <div class="payment-method" style="background:var(--bg-dark); border:2px solid var(--border); border-radius:12px; padding:16px; cursor:pointer; display:flex; align-items:center; gap:12px;" onclick="selectPayment(this, '${pm.type}', '${pm.id}')">
+                            <div style="width:40px; height:40px; background:var(--bg-card); border-radius:10px; display:flex; align-items:center; justify-content:center;">
+                                <i class="fas fa-${pm.type==='qris'?'qrcode':pm.type==='dana'?'wallet':pm.type==='ovo'?'circle':'money-bill-wave'}"></i>
                             </div>
-                            <div>
-                                <div class="font-bold text-xl">${isLoggedIn ? user.name : 'Guest'}</div>
-                                ${isLoggedIn ? `<div class="text-sm text-cyan-400 capitalize">${user.role}</div>` : ''}
+                            <div style="flex:1;">
+                                <div style="font-weight:600; text-transform:uppercase;">${pm.type}</div>
+                                <div style="font-size:13px; color:var(--text-muted);">${pm.name} • ${pm.number || ''}</div>
                             </div>
+                            <i class="fas fa-check-circle" style="color:var(--success); opacity:0;"></i>
                         </div>
-                        ${isLoggedIn ? `<div class="text-2xl font-bold gradient-text">${user.coins.toLocaleString()} <i class="fas fa-coins text-yellow-400"></i></div>` : ''}
-                    </div>
-                `;
+                    `).join('') : `
+                        <div style="text-align:center; padding:20px; color:var(--text-muted);">
+                            <i class="fas fa-exclamation-circle" style="font-size:32px; margin-bottom:8px;"></i>
+                            <p>Penjual belum mengatur metode pembayaran</p>
+                        </div>
+                    `}
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" style="width:100%;" id="btn-confirm-pay" onclick="confirmPayment('${product.id}')" disabled>
+                    <i class="fas fa-check"></i> Konfirmasi Pembayaran
+                </button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(payModal);
+    tempOrderData = { productId };
+}
 
-                const mainNav = `
-                    <div class="space-y-2 mb-8">
-                        ${this.renderNavItem('home', 'fas fa-home', 'Home')}
-                        ${isLoggedIn ? this.renderNavItem('orders', 'fas fa-shopping-bag', 'Pesanan') : ''}
-                        ${isLoggedIn ? this.renderNavItem('chat', 'fas fa-comments', 'Chat') : ''}
-                        ${this.renderNavItem('auctions', 'fas fa-gavel', 'Lelang')}
-                        ${this.renderNavItem('barter', 'fas fa-exchange-alt', 'Barter')}
-                        ${isLoggedIn ? this.renderNavItem('transfer-coins', 'fas fa-hand-holding-usd', 'Kirim Koin') : ''}
-                        ${isLoggedIn ? this.renderNavItem('coins', 'fas fa-coins', 'Koin Saya') : ''}
-                        ${isLoggedIn ? this.renderNavItem('groups', 'fas fa-users', 'Grup') : ''}
-                    </div>
-                `;
+let selectedPayment = null;
+function selectPayment(el, type, paymentId) {
+    document.querySelectorAll('.payment-method').forEach(pm => {
+        pm.style.borderColor = 'var(--border)';
+        pm.querySelector('.fa-check-circle').style.opacity = '0';
+    });
+    el.style.borderColor = 'var(--primary)';
+    el.querySelector('.fa-check-circle').style.opacity = '1';
+    selectedPayment = { type, paymentId };
+    document.getElementById('btn-confirm-pay').disabled = false;
+}
 
-                let sellerSection = '';
-                if (isSeller) {
-                    sellerSection = `
-                        <div class="space-y-2 mb-8">
-                            <div class="text-xs text-gray-400 uppercase tracking-wider px-3 py-2 font-medium">Toko Saya</div>
-                            ${this.renderNavItem('my-store', 'fas fa-store', userStore?.name || 'Toko Saya')}
-                            ${this.renderNavItem('add-product', 'fas fa-plus-circle', 'Tambah Produk')}
-                            ${this.renderNavItem('payment-methods', 'fas fa-credit-card', 'Metode Bayar')}
+function confirmPayment(productId) {
+    if (!selectedPayment) return;
+    const product = Store.get('products').find(p => p.id === productId);
+    const orders = Store.get('orders');
+    const order = {
+        id: Date.now().toString(),
+        productId,
+        buyerId: Store.currentUser.id,
+        sellerId: product.shopId || 'admin',
+        price: product.price,
+        paymentMethod: selectedPayment.type,
+        status: 'pending',
+        createdAt: new Date().toISOString(),
+        productName: product.name,
+        productImage: product.image
+    };
+    orders.push(order);
+    Store.set('orders', orders);
+    
+    // Admin gets coins
+    if (product.shopId === 'admin' || !product.shopId) {
+        // Admin coin logic
+    }
+    
+    showToast('Pesanan berhasil dibuat!', 'success');
+    document.querySelectorAll('.modal-overlay').forEach(m => m.remove());
+    navigate('orders');
+}
+
+function buyWithCoin(productId, modal) {
+    modal.remove();
+    const product = Store.get('products').find(p => p.id === productId);
+    if (!product || !product.coinPrice) return;
+    
+    if ((Store.currentUser.coins || 0) < product.coinPrice) {
+        showToast('Koin tidak cukup!', 'error'); return;
+    }
+    
+    Store.currentUser.coins -= product.coinPrice;
+    updateUser(Store.currentUser);
+    
+    const orders = Store.get('orders');
+    orders.push({
+        id: Date.now().toString(),
+        productId,
+        buyerId: Store.currentUser.id,
+        sellerId: product.shopId || 'admin',
+        price: 0,
+        coinPrice: product.coinPrice,
+        paymentMethod: 'coin',
+        status: 'completed',
+        createdAt: new Date().toISOString(),
+        productName: product.name,
+        productImage: product.image
+    });
+    Store.set('orders', orders);
+    showToast('Pembelian dengan koin berhasil!', 'success');
+    navigate('orders');
+}
+
+// ==================== SEARCH ====================
+function renderSearch(container) {
+    container.innerHTML = `
+        <div class="top-header">
+            <div class="search-box" style="max-width:100%;">
+                <i class="fas fa-search" style="color:var(--text-muted);"></i>
+                <input type="text" id="search-input" placeholder="Cari produk..." onkeyup="doSearch()">
+            </div>
+        </div>
+        <div style="margin-bottom:16px;">
+            <select class="form-select" id="filter-game" onchange="doSearch()" style="max-width:200px; display:inline-block; margin-right:10px;">
+                <option value="">Semua Game</option>
+                <option>Mobile Legends</option>
+                <option>Free Fire</option>
+                <option>PUBG Mobile</option>
+                <option>Genshin Impact</option>
+                <option>Valorant</option>
+                <option>COD Mobile</option>
+            </select>
+            <select class="form-select" id="filter-type" onchange="doSearch()" style="max-width:200px; display:inline-block;">
+                <option value="">Semua Jenis</option>
+                <option>Akun</option>
+                <option>Item</option>
+                <option>Jasa</option>
+            </select>
+        </div>
+        <div id="search-results" class="card-grid"></div>
+    `;
+    doSearch();
+}
+
+function doSearch() {
+    const query = (document.getElementById('search-input')?.value || '').toLowerCase();
+    const game = document.getElementById('filter-game')?.value || '';
+    const type = document.getElementById('filter-type')?.value || '';
+    
+    let products = Store.get('products').filter(p => {
+        const shop = Store.get('shops').find(s => s.id === p.shopId);
+        return !shop || !shop.blocked;
+    });
+    
+    if (query) products = products.filter(p => p.name.toLowerCase().includes(query) || p.game.toLowerCase().includes(query));
+    if (game) products = products.filter(p => p.game === game);
+    if (type) products = products.filter(p => p.type === type);
+    
+    const container = document.getElementById('search-results');
+    if (container) container.innerHTML = products.length ? products.map(p => renderProductCard(p)).join('') : `
+        <div class="empty-state" style="grid-column:1/-1;">
+            <i class="fas fa-search"></i>
+            <h3>Produk tidak ditemukan</h3>
+        </div>
+    `;
+}
+
+// ==================== ORDERS ====================
+function renderOrders(container) {
+    const orders = Store.get('orders').filter(o => o.buyerId === Store.currentUser.id).sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+    
+    container.innerHTML = `
+        <h2 style="margin-bottom:20px;"><i class="fas fa-shopping-bag" style="color:var(--primary);"></i> Pesanan Saya</h2>
+        ${orders.length ? `
+            <div class="table-container">
+                <table>
+                    <thead><tr><th>Produk</th><th>Harga</th><th>Metode</th><th>Status</th><th>Aksi</th></tr></thead>
+                    <tbody>
+                        ${orders.map(o => `
+                            <tr>
+                                <td>
+                                    <div style="display:flex; align-items:center; gap:12px;">
+                                        <div style="width:50px; height:50px; background:var(--bg-hover); border-radius:8px; display:flex; align-items:center; justify-content:center;">
+                                            ${o.productImage ? `<img src="${o.productImage}" style="width:100%; height:100%; object-fit:cover; border-radius:8px;">` : '<i class="fas fa-box"></i>'}
+                                        </div>
+                                        <div>
+                                            <div style="font-weight:600;">${o.productName}</div>
+                                            <div style="font-size:12px; color:var(--text-muted);">${new Date(o.createdAt).toLocaleDateString('id-ID')}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>${o.coinPrice ? o.coinPrice + ' Koin' : 'Rp ' + o.price?.toLocaleString('id-ID')}</td>
+                                <td><span class="badge badge-primary">${o.paymentMethod?.toUpperCase()}</span></td>
+                                <td><span class="badge badge-${o.status==='completed'?'success':o.status==='pending'?'warning':'danger'}">${o.status}</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline" onclick="openChat('${o.id}', '${o.sellerId}', '${o.productName}')">
+                                        <i class="fas fa-comment"></i> Chat
+                                    </button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        ` : `
+            <div class="empty-state">
+                <i class="fas fa-shopping-bag"></i>
+                <h3>Belum ada pesanan</h3>
+                <p>Mulai belanja untuk melihat pesanan di sini</p>
+                <button class="btn btn-primary" style="margin-top:16px;" onclick="navigate('home')">Jelajahi Produk</button>
+            </div>
+        `}
+    `;
+}
+
+// ==================== CHAT ====================
+function renderChats(container) {
+    const orders = Store.get('orders').filter(o => o.buyerId === Store.currentUser.id || o.sellerId === Store.currentUser.id);
+    const chats = Store.get('chats');
+    
+    // Group chats by order
+    const chatGroups = {};
+    orders.forEach(o => {
+        const chat = chats.filter(c => c.orderId === o.id);
+        if (chat.length || o.buyerId === Store.currentUser.id) {
+            chatGroups[o.id] = { order: o, messages: chat };
+        }
+    });
+    
+    container.innerHTML = `
+        <h2 style="margin-bottom:20px;"><i class="fas fa-comments" style="color:var(--primary);"></i> Chat</h2>
+        ${Object.keys(chatGroups).length ? `
+            <div style="display:flex; flex-direction:column; gap:12px;">
+                ${Object.values(chatGroups).map(cg => {
+                    const otherId = cg.order.buyerId === Store.currentUser.id ? cg.order.sellerId : cg.order.buyerId;
+                    const other = Store.get('users').find(u => u.id === otherId) || { name: 'Admin' };
+                    const lastMsg = cg.messages[cg.messages.length - 1];
+                    return `
+                        <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:16px; cursor:pointer; display:flex; align-items:center; gap:16px;" onclick="openChat('${cg.order.id}', '${otherId}', '${cg.order.productName}')">
+                            <div class="avatar" style="width:48px; height:48px;">${other.name[0]}</div>
+                            <div style="flex:1;">
+                                <div style="font-weight:600;">${other.name}</div>
+                                <div style="font-size:13px; color:var(--text-muted);">${cg.order.productName}</div>
+                                ${lastMsg ? `<div style="font-size:13px; margin-top:4px;">${lastMsg.text?.substring(0, 40) || '📷 Gambar'}</div>` : ''}
+                            </div>
+                            <span class="badge badge-${cg.order.status==='completed'?'success':'warning'}">${cg.order.status}</span>
                         </div>
                     `;
-                }
+                }).join('')}
+            </div>
+        ` : `
+            <div class="empty-state">
+                <i class="fas fa-comments"></i>
+                <h3>Belum ada chat</h3>
+                <p>Chat akan muncul setelah Anda membuat pesanan</p>
+            </div>
+        `}
+    `;
+}
 
-                let adminSection = '';
-                if (isAdmin) {
-                    adminSection = `
-                        <div class="space-y-2">
-                            <div class="text-xs text-gray-400 uppercase tracking-wider px-3 py-2 font-medium">Admin Panel</div>
-                            ${this.renderNavItem('admin-dashboard', 'fas fa-tachometer-alt', 'Dashboard')}
-                            ${this.renderNavItem('admin-stores', 'fas fa-stores', 'Kelola Toko')}
-                            ${this.renderNavItem('admin-topup', 'fas fa-arrow-up', 'TopUp Koin')}
-                        </div>
-                    `;
-                }
+function openChat(orderId, otherId, title) {
+    currentChatId = orderId;
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.style.alignItems = 'flex-end';
+    modal.innerHTML = `
+        <div style="background:var(--bg-card); width:100%; max-width:600px; height:80vh; border-radius:20px 20px 0 0; display:flex; flex-direction:column; border:1px solid var(--border);">
+            <div style="padding:16px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px;">
+                <button class="btn btn-sm btn-outline" onclick="this.closest('.modal-overlay').remove(); currentChatId=null;"><i class="fas fa-arrow-left"></i></button>
+                <div>
+                    <div style="font-weight:600;">${title}</div>
+                    <div style="font-size:12px; color:var(--text-muted);">Chat dengan penjual</div>
+                </div>
+            </div>
+            <div id="chat-messages-${orderId}" style="flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:12px;"></div>
+            <div style="padding:16px; border-top:1px solid var(--border); display:flex; gap:10px; background:var(--bg-dark);">
+                <input type="file" id="chat-file-${orderId}" accept="image/*" style="display:none;" onchange="sendImage('${orderId}', '${otherId}')">
+                <button class="btn btn-outline" onclick="document.getElementById('chat-file-${orderId}').click()"><i class="fas fa-image"></i></button>
+                <input type="text" id="chat-input-${orderId}" class="form-input" placeholder="Ketik pesan..." style="flex:1;" onkeyup="if(event.key==='Enter') sendMessage('${orderId}', '${otherId}')">
+                <button class="btn btn-primary" onclick="sendMessage('${orderId}', '${otherId}')"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    loadChatMessages(orderId);
+}
 
-                let createStoreBtn = '';
-                if (isLoggedIn && !userStore && !isAdmin) {
-                    createStoreBtn = `
-                        <div class="glass p-4 rounded-3xl glass-hover">
-                            <button id="createStoreBtn" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 hover:from-emerald-600 hover:to-teal-700 neon-glow">
-                                <i class="fas fa-store"></i>Buat Toko Pertama
+function loadChatMessages(orderId) {
+    const container = document.getElementById(`chat-messages-${orderId}`);
+    if (!container) return;
+    const chats = Store.get('chats').filter(c => c.orderId === orderId);
+    container.innerHTML = chats.map(c => `
+        <div class="chat-message ${c.senderId === Store.currentUser.id ? 'sent' : 'received'}">
+            ${c.text || ''}
+            ${c.image ? `<img src="${c.image}">` : ''}
+            <div style="font-size:10px; opacity:0.7; margin-top:4px;">${new Date(c.time).toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'})}</div>
+        </div>
+    `).join('');
+    container.scrollTop = container.scrollHeight;
+}
+
+function sendMessage(orderId, otherId) {
+    const input = document.getElementById(`chat-input-${orderId}`);
+    const text = input.value.trim();
+    if (!text) return;
+    
+    const chats = Store.get('chats');
+    chats.push({
+        id: Date.now().toString(),
+        orderId,
+        senderId: Store.currentUser.id,
+        receiverId: otherId,
+        text,
+        time: new Date().toISOString()
+    });
+    Store.set('chats', chats);
+    input.value = '';
+    loadChatMessages(orderId);
+}
+
+function sendImage(orderId, otherId) {
+    const input = document.getElementById(`chat-file-${orderId}`);
+    const file = input.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = e => {
+        const chats = Store.get('chats');
+        chats.push({
+            id: Date.now().toString(),
+            orderId,
+            senderId: Store.currentUser.id,
+            receiverId: otherId,
+            image: e.target.result,
+            time: new Date().toISOString()
+        });
+        Store.set('chats', chats);
+        loadChatMessages(orderId);
+    };
+    reader.readAsDataURL(file);
+}
+
+// ==================== GROUPS ====================
+function renderGroups(container) {
+    const groups = Store.get('groups');
+    container.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h2><i class="fas fa-users" style="color:var(--primary);"></i> Grup Chat</h2>
+            <button class="btn btn-primary" onclick="createGroup()"><i class="fas fa-plus"></i> Buat Grup</button>
+        </div>
+        ${groups.length ? `
+            <div class="card-grid">
+                ${groups.map(g => `
+                    <div class="card" onclick="openGroup('${g.id}')">
+                        <div class="card-body">
+                            <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+                                <div class="avatar" style="width:48px; height:48px;">${g.name[0]}</div>
+                                <div>
+                                    <div class="card-title">${g.name}</div>
+                                    <div style="font-size:13px; color:var(--text-muted);">${g.members?.length || 1} anggota</div>
+                                </div>
+                            </div>
+                            <button class="btn btn-sm btn-outline" style="width:100%;" onclick="event.stopPropagation(); copyGroupLink('${g.id}')">
+                                <i class="fas fa-link"></i> Copy Link
                             </button>
                         </div>
+                    </div>
+                `).join('')}
+            </div>
+        ` : `
+            <div class="empty-state">
+                <i class="fas fa-users"></i>
+                <h3>Belum ada grup</h3>
+                <p>Buat grup untuk mulai chatting bersama</p>
+            </div>
+        `}
+    `;
+}
+
+function createGroup() {
+    const name = prompt('Nama grup:');
+    if (!name) return;
+    const groups = Store.get('groups');
+    const group = {
+        id: Date.now().toString(),
+        name,
+        creatorId: Store.currentUser.id,
+        members: [Store.currentUser.id],
+        inviteCode: Math.random().toString(36).substring(2, 8).toUpperCase(),
+        createdAt: new Date().toISOString()
+    };
+    groups.push(group);
+    Store.set('groups', groups);
+    showToast('Grup berhasil dibuat!', 'success');
+    renderGroups(document.getElementById('main-content'));
+}
+
+function copyGroupLink(groupId) {
+    const group = Store.get('groups').find(g => g.id === groupId);
+    if (!group) return;
+    const link = `3market://join/${group.inviteCode}`;
+    navigator.clipboard?.writeText(link);
+    showToast('Link disalin: ' + link, 'success');
+}
+
+function openGroup(groupId) {
+    currentGroupId = groupId;
+    const group = Store.get('groups').find(g => g.id === groupId);
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.style.alignItems = 'flex-end';
+    modal.innerHTML = `
+        <div style="background:var(--bg-card); width:100%; max-width:600px; height:80vh; border-radius:20px 20px 0 0; display:flex; flex-direction:column; border:1px solid var(--border);">
+            <div style="padding:16px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px;">
+                <button class="btn btn-sm btn-outline" onclick="this.closest('.modal-overlay').remove(); currentGroupId=null;"><i class="fas fa-arrow-left"></i></button>
+                <div style="flex:1;">
+                    <div style="font-weight:600;">${group.name}</div>
+                    <div style="font-size:12px; color:var(--text-muted);">Kode: ${group.inviteCode}</div>
+                </div>
+                <button class="btn btn-sm btn-outline" onclick="joinGroupPrompt()"><i class="fas fa-user-plus"></i></button>
+            </div>
+            <div id="group-messages-${groupId}" style="flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:12px;"></div>
+            <div style="padding:16px; border-top:1px solid var(--border); display:flex; gap:10px; background:var(--bg-dark);">
+                <input type="text" id="group-input-${groupId}" class="form-input" placeholder="Ketik pesan..." style="flex:1;" onkeyup="if(event.key==='Enter') sendGroupMessage('${groupId}')">
+                <button class="btn btn-primary" onclick="sendGroupMessage('${groupId}')"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    loadGroupMessages(groupId);
+}
+
+function loadGroupMessages(groupId) {
+    const container = document.getElementById(`group-messages-${groupId}`);
+    if (!container) return;
+    const chats = Store.get('chats').filter(c => c.groupId === groupId);
+    container.innerHTML = chats.map(c => {
+        const sender = Store.get('users').find(u => u.id === c.senderId) || { name: 'Unknown' };
+        return `
+            <div class="chat-message ${c.senderId === Store.currentUser.id ? 'sent' : 'received'}">
+                <div style="font-size:11px; opacity:0.8; margin-bottom:4px;">${sender.name}</div>
+                ${c.text || ''}
+                ${c.image ? `<img src="${c.image}">` : ''}
+            </div>
+        `;
+    }).join('');
+    container.scrollTop = container.scrollHeight;
+}
+
+function sendGroupMessage(groupId) {
+    const input = document.getElementById(`group-input-${groupId}`);
+    const text = input.value.trim();
+    if (!text) return;
+    
+    const chats = Store.get('chats');
+    chats.push({
+        id: Date.now().toString(),
+        groupId,
+        senderId: Store.currentUser.id,
+        text,
+        time: new Date().toISOString()
+    });
+    Store.set('chats', chats);
+    input.value = '';
+    loadGroupMessages(groupId);
+}
+
+function joinGroupPrompt() {
+    const code = prompt('Masukkan kode undangan grup:');
+    if (!code) return;
+    const groups = Store.get('groups');
+    const group = groups.find(g => g.inviteCode === code.toUpperCase());
+    if (!group) { showToast('Kode grup tidak valid', 'error'); return; }
+    if (!group.members.includes(Store.currentUser.id)) {
+        group.members.push(Store.currentUser.id);
+        Store.set('groups', groups);
+        showToast('Berhasil bergabung ke grup!', 'success');
+        renderGroups(document.getElementById('main-content'));
+    }
+}
+
+// ==================== COIN EXCHANGE ====================
+function renderCoinExchange(container) {
+    const products = Store.get('coin_products').filter(p => p.active !== false);
+    const requests = Store.get('coin_requests').filter(r => r.buyerId === Store.currentUser.id);
+    
+    container.innerHTML = `
+        <h2 style="margin-bottom:20px;"><i class="fas fa-coins" style="color:var(--warning);"></i> Tukar Koin</h2>
+        <div style="background:linear-gradient(135deg, rgba(245,158,11,0.2), rgba(217,119,6,0.2)); border:1px solid var(--warning); border-radius:16px; padding:20px; margin-bottom:24px; display:flex; align-items:center; justify-content:space-between;">
+            <div>
+                <div style="font-size:13px; color:var(--text-muted);">Saldo Koin Anda</div>
+                <div style="font-size:32px; font-weight:700; color:var(--warning);">${Store.currentUser.coins || 0} <i class="fas fa-coins" style="font-size:20px;"></i></div>
+            </div>
+            <button class="btn btn-warning" onclick="topUpCoinPrompt()"><i class="fas fa-plus"></i> Top Up</button>
+        </div>
+        
+        <h3 style="margin-bottom:16px;">Produk Tukar Koin</h3>
+        ${products.length ? `
+            <div class="card-grid">
+                ${products.map(p => `
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="card-title">${p.name}</div>
+                            <div style="color:var(--text-muted); font-size:13px; margin-bottom:12px;">${p.description}</div>
+                            <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+                                <i class="fas fa-coins" style="color:var(--warning);"></i>
+                                <span style="font-size:20px; font-weight:700; color:var(--warning);">${p.coinPrice}</span>
+                            </div>
+                            <button class="btn btn-primary" style="width:100%;" onclick="requestCoinExchange('${p.id}')">Tukar Koin</button>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        ` : '<div class="empty-state"><i class="fas fa-coins"></i><h3>Belum ada produk koin</h3></div>'}
+        
+        ${requests.length ? `
+            <h3 style="margin:24px 0 16px;">Riwayat Permintaan</h3>
+            <div class="table-container">
+                <table>
+                    <thead><tr><th>Produk</th><th>Koin</th><th>Status</th></tr></thead>
+                    <tbody>
+                        ${requests.map(r => `
+                            <tr>
+                                <td>${r.productName}</td>
+                                <td>${r.coinPrice}</td>
+                                <td><span class="badge badge-${r.status==='approved'?'success':r.status==='rejected'?'danger':'warning'}">${r.status}</span></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        ` : ''}
+    `;
+}
+
+function requestCoinExchange(productId) {
+    const product = Store.get('coin_products').find(p => p.id === productId);
+    if (!product) return;
+    
+    if ((Store.currentUser.coins || 0) < product.coinPrice) {
+        showToast('Koin tidak cukup!', 'error'); return;
+    }
+    
+    // Parse custom form fields
+    let formHtml = '';
+    if (product.formFields) {
+        product.formFields.forEach(f => {
+            formHtml += `
+                <div class="form-group">
+                    <label class="form-label">${f.label}</label>
+                    <input type="text" class="form-input" id="form-${f.name}" placeholder="${f.placeholder}">
+                </div>
+            `;
+        });
+    }
+    
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal">
+            <div class="modal-header"><h3>Tukar Koin - ${product.name}</h3></div>
+            <div class="modal-body">
+                <div style="background:var(--bg-dark); padding:16px; border-radius:12px; margin-bottom:20px;">
+                    <div style="display:flex; justify-content:space-between;">
+                        <span>Harga:</span>
+                        <span style="font-weight:700; color:var(--warning);">${product.coinPrice} Koin</span>
+                    </div>
+                </div>
+                ${formHtml}
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">Batal</button>
+                <button class="btn btn-primary" onclick="submitCoinRequest('${product.id}', this.closest('.modal-overlay'))">Kirim Permintaan</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+function submitCoinRequest(productId, modal) {
+    const product = Store.get('coin_products').find(p => p.id === productId);
+    const formData = {};
+    if (product.formFields) {
+        product.formFields.forEach(f => {
+            formData[f.name] = document.getElementById(`form-${f.name}`)?.value || '';
+        });
+    }
+    
+    Store.currentUser.coins -= product.coinPrice;
+    updateUser(Store.currentUser);
+    
+    const requests = Store.get('coin_requests');
+    requests.push({
+        id: Date.now().toString(),
+        productId,
+        buyerId: Store.currentUser.id,
+        productName: product.name,
+        coinPrice: product.coinPrice,
+        formData,
+        status: 'pending',
+        createdAt: new Date().toISOString()
+    });
+    Store.set('coin_requests', requests);
+    
+    modal.remove();
+    showToast('Permintaan tukar koin dikirim!', 'success');
+    navigate('coin-exchange');
+}
+
+function topUpCoinPrompt() {
+    showToast('Hubungi admin untuk top up koin', 'info');
+}
+
+// ==================== AUCTIONS ====================
+function renderAuctions(container) {
+    const auctions = Store.get('auctions').sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const now = new Date();
+    
+    container.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h2><i class="fas fa-gavel" style="color:var(--danger);"></i> Lelang</h2>
+            <button class="btn btn-primary" onclick="createAuction()"><i class="fas fa-plus"></i> Buat Lelang</button>
+        </div>
+        ${auctions.length ? `
+            <div class="card-grid">
+                ${auctions.map(a => {
+                    const endTime = new Date(a.endTime);
+                    const isActive = endTime > now;
+                    const highestBid = a.bids?.length ? Math.max(...a.bids.map(b => b.amount)) : a.startPrice;
+                    return `
+                        <div class="card">
+                            <div class="card-img">
+                                ${a.image ? `<img src="${a.image}">` : '<i class="fas fa-gavel" style="font-size:48px;"></i>'}
+                            </div>
+                            <div class="card-body">
+                                <div class="card-title">${a.name}</div>
+                                <div style="color:var(--text-muted); font-size:13px; margin-bottom:8px;">${a.description?.substring(0, 60)}...</div>
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                                    <div>
+                                        <div style="font-size:12px; color:var(--text-muted);">Bid Tertinggi</div>
+                                        <div style="font-weight:700; color:var(--primary);">Rp ${highestBid?.toLocaleString('id-ID')}</div>
+                                    </div>
+                                    ${isActive ? `<div class="auction-timer"><i class="fas fa-clock"></i> ${getTimeLeft(endTime)}</div>` : '<span class="badge badge-danger">Selesai</span>'}
+                                </div>
+                                ${isActive ? `
+                                    <button class="btn btn-primary" style="width:100%;" onclick="placeBid('${a.id}')">
+                                        <i class="fas fa-hand-paper"></i> Ikut Lelang
+                                    </button>
+                                ` : `<div style="text-align:center; color:var(--text-muted); font-size:13px;">Lelang telah berakhir</div>`}
+                            </div>
+                        </div>
                     `;
-                }
+                }).join('')}
+            </div>
+        ` : `
+            <div class="empty-state">
+                <i class="fas fa-gavel"></i>
+                <h3>Belum ada lelang</h3>
+                <p>Jadilah yang pertama membuat lelang</p>
+            </div>
+        `}
+    `;
+}
 
-                return profileSection + mainNav + sellerSection + adminSection + createStoreBtn;
-            }
+function getTimeLeft(endTime) {
+    const diff = endTime - new Date();
+    if (diff <= 0) return 'Selesai';
+    const hours = Math.floor(diff / 3600000);
+    const mins = Math.floor((diff % 3600000) / 60000);
+    return `${hours}j ${mins}m`;
+}
 
-            renderNavItem(page, icon, label) {
-                return `<button class="nav-btn w-full flex items-center gap-4 p-4 rounded-2xl glass-hover text-left group" data-page="${page}">
-                    <i class="${icon} text-lg group-hover:text-cyan-400 transition-colors"></i>
-                    <span class="font-medium">${label}</span>
-                </button>`;
-            }
+function createAuction() {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal">
+            <div class="modal-header"><h3>Buat Lelang Baru</h3></div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Nama Item</label>
+                    <input type="text" class="form-input" id="auc-name" placeholder="Nama item yang dilelang">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Deskripsi</label>
+                    <textarea class="form-textarea" id="auc-desc" placeholder="Deskripsi item..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Harga Awal (Rp)</label>
+                    <input type="number" class="form-input" id="auc-start" placeholder="100000">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Durasi (jam)</label>
+                    <input type="number" class="form-input" id="auc-duration" value="24" min="1" max="168">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">Batal</button>
+                <button class="btn btn-primary" onclick="submitAuction(this.closest('.modal-overlay'))">Buat Lelang</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
 
-            // ===== PAGE MANAGEMENT =====
-            async showPage(page) {
-                if (!this.currentUser && !['login', 'register'].includes(page)) {
-                    this.showPage('login');
-                    return;
-                }
+function submitAuction(modal) {
+    const name = document.getElementById('auc-name').value;
+    const desc = document.getElementById('auc-desc').value;
+    const start = parseInt(document.getElementById('auc-start').value);
+    const duration = parseInt(document.getElementById('auc-duration').value);
+    
+    if (!name || !start) { showToast('Lengkapi data lelang', 'error'); return; }
+    
+    const endTime = new Date();
+    endTime.setHours(endTime.getHours() + duration);
+    
+    const auctions = Store.get('auctions');
+    auctions.push({
+        id: Date.now().toString(),
+        name,
+        description: desc,
+        startPrice: start,
+        endTime: endTime.toISOString(),
+        creatorId: Store.currentUser.id,
+        bids: [],
+        createdAt: new Date().toISOString()
+    });
+    Store.set('auctions', auctions);
+    modal.remove();
+    showToast('Lelang berhasil dibuat!', 'success');
+    navigate('auctions');
+}
 
-                this.currentPage = page;
-                const container = document.getElementById('pagesContainer');
-                container.innerHTML = `<div class="fade-in">${this.renderPage(page)}</div>`;
-                this.bindPageEvents(page);
-                this.updateActiveNav(page);
-            }
+function placeBid(auctionId) {
+    const auction = Store.get('auctions').find(a => a.id === auctionId);
+    if (!auction) return;
+    
+    const highest = auction.bids?.length ? Math.max(...auction.bids.map(b => b.amount)) : auction.startPrice;
+    const amount = parseInt(prompt(`Masukkan bid Anda (min: Rp ${(highest + 1000).toLocaleString('id-ID')}):`));
+    
+    if (!amount || amount <= highest) { showToast('Bid harus lebih tinggi dari bid saat ini', 'error'); return; }
+    
+    auction.bids = auction.bids || [];
+    auction.bids.push({
+        userId: Store.currentUser.id,
+        amount,
+        time: new Date().toISOString()
+    });
+    
+    const auctions = Store.get('auctions');
+    const idx = auctions.findIndex(a => a.id === auctionId);
+    auctions[idx] = auction;
+    Store.set('auctions', auctions);
+    
+    showToast('Bid berhasil!', 'success');
+    navigate('auctions');
+}
 
-            renderPage(page) {
-                const pages = {
-                    login: this.renderLoginPage.bind(this),
-                    register: this.renderRegisterPage.bind(this),
-                    home: this.renderHomePage.bind(this),
-                    // Add other pages here
-                };
-                return pages[page]?.() || this.renderNotFoundPage();
-            }
-
-            renderLoginPage() {
-                return `
-                    <div class="max-w-2xl mx-auto mt-24">
-                        <div class="glass p-12 rounded-4xl max-w-md mx-auto glass-hover">
-                            <div class="text-center mb-10">
-                                <div class="w-28 h-28 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-3xl mx-auto mb-6 flex items-center justify-center neon-glow">
-                                    <i class="fas fa-gamepad text-4xl text-white"></i>
+// ==================== BARTERS ====================
+function renderBarters(container) {
+    const barters = Store.get('barters').filter(b => b.status === 'active');
+    container.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h2><i class="fas fa-exchange-alt" style="color:var(--secondary);"></i> Barter</h2>
+            <button class="btn btn-primary" onclick="createBarter()"><i class="fas fa-plus"></i> Buat Barter</button>
+        </div>
+        <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:20px;">
+            <i class="fas fa-shield-alt" style="color:var(--success);"></i> <strong>Keamanan Barter:</strong> Biaya jaminan Rp 7.000 akan dikembalikan setelah barter selesai.
+        </div>
+        ${barters.length ? `
+            <div class="card-grid">
+                ${barters.map(b => `
+                    <div class="card">
+                        <div class="card-body">
+                            <div style="display:flex; gap:12px; margin-bottom:12px;">
+                                <div style="flex:1; background:var(--bg-dark); border-radius:8px; padding:12px; text-align:center;">
+                                    <div style="font-size:12px; color:var(--text-muted);">Miliki</div>
+                                    <div style="font-weight:600;">${b.haveItem}</div>
                                 </div>
-                                <h1 class="gradient-text text-4xl font-black mb-2 tracking-tight">Selamat Datang</h1>
-                                <p class="text-gray-400 text-lg">Masuk ke dunia gaming terlengkap</p>
+                                <div style="display:flex; align-items:center;"><i class="fas fa-arrow-right" style="color:var(--primary);"></i></div>
+                                <div style="flex:1; background:var(--bg-dark); border-radius:8px; padding:12px; text-align:center;">
+                                    <div style="font-size:12px; color:var(--text-muted);">Inginkan</div>
+                                    <div style="font-weight:600;">${b.wantItem}</div>
+                                </div>
                             </div>
-                            <form id="loginForm" class="space-y-4">
-                                <div class="glass p-4 rounded-2xl">
-                                    <input type="text" id="loginUsername" placeholder="👤 Email / Username" 
-                                           class="w-full bg-transparent outline-none text-lg pt-2" required>
-                                </div>
-                                <div class="glass p-4 rounded-2xl">
-                                    <input type="password" id="loginPassword" placeholder="🔒 Password" 
-                                           class="w-full bg-transparent outline-none text-lg pt-2" required>
-                                </div>
-                                <div class="flex items-center gap-3 p-3 glass rounded-2xl">
-                                    <label class="flex items-center gap-2 cursor-pointer">
-                                        <input type="checkbox" id="otpVerify" class="w-4 h-4 text-cyan-500 rounded">
-                                        <span class="text-sm">Verifikasi OTP (demo: 123456)</span>
-                                    </label>
-                                </div>
-                                <button type="submit" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 py-5 rounded-2xl font-bold text-xl neon-glow">
-                                    <i class="fas fa-sign-in-alt mr-2"></i>Masuk Sekarang
+                            <div style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">Game: ${b.game}</div>
+                            <button class="btn btn-primary" style="width:100%;" onclick="acceptBarter('${b.id}')">
+                                <i class="fas fa-handshake"></i> Ajukan Barter (Rp 7.000)
+                            </button>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        ` : `
+            <div class="empty-state">
+                <i class="fas fa-exchange-alt"></i>
+                <h3>Belum ada barter aktif</h3>
+            </div>
+        `}
+    `;
+}
+
+function createBarter() {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal">
+            <div class="modal-header"><h3>Buat Barter</h3></div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Game</label>
+                    <select class="form-select" id="barter-game">
+                        <option>Mobile Legends</option><option>Free Fire</option><option>PUBG Mobile</option>
+                        <option>Genshin Impact</option><option>Valorant</option><option>COD Mobile</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Item yang Dimiliki</label>
+                    <input type="text" class="form-input" id="barter-have" placeholder="Contoh: Skin Epic">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Item yang Diinginkan</label>
+                    <input type="text" class="form-input" id="barter-want" placeholder="Contoh: Skin Legend">
+                </div>
+                <div style="background:rgba(239,68,68,0.1); border:1px solid var(--danger); border-radius:8px; padding:12px; font-size:13px;">
+                    <i class="fas fa-info-circle" style="color:var(--danger);"></i> Biaya jaminan keamanan: Rp 7.000 (dikembalikan setelah barter selesai)
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">Batal</button>
+                <button class="btn btn-primary" onclick="submitBarter(this.closest('.modal-overlay'))">Buat Barter</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+function submitBarter(modal) {
+    const game = document.getElementById('barter-game').value;
+    const have = document.getElementById('barter-have').value;
+    const want = document.getElementById('barter-want').value;
+    if (!have || !want) { showToast('Lengkapi data barter', 'error'); return; }
+    
+    const barters = Store.get('barters');
+    barters.push({
+        id: Date.now().toString(),
+        game,
+        haveItem: have,
+        wantItem: want,
+        creatorId: Store.currentUser.id,
+        status: 'active',
+        createdAt: new Date().toISOString()
+    });
+    Store.set('barters', barters);
+    modal.remove();
+    showToast('Barter berhasil dibuat!', 'success');
+    navigate('barters');
+}
+
+function acceptBarter(barterId) {
+    showToast('Permintaan barter dikirim! Admin akan memproses.', 'success');
+}
+
+// ==================== REPORTS ====================
+function renderReports(container) {
+    container.innerHTML = `
+        <h2 style="margin-bottom:20px;"><i class="fas fa-flag" style="color:var(--danger);"></i> Laporan</h2>
+        <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:20px; max-width:600px;">
+            <div class="form-group">
+                <label class="form-label">Jenis Laporan</label>
+                <select class="form-select" id="report-type">
+                    <option value="bug">Bug / Error</option>
+                    <option value="unsafe">Toko Tidak Aman</option>
+                    <option value="question">Pertanyaan ke Admin</option>
+                    <option value="other">Lainnya</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Judul</label>
+                <input type="text" class="form-input" id="report-title" placeholder="Judul laporan">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Deskripsi</label>
+                <textarea class="form-textarea" id="report-desc" placeholder="Jelaskan detail laporan..."></textarea>
+            </div>
+            <button class="btn btn-danger" style="width:100%;" onclick="submitReport()">
+                <i class="fas fa-paper-plane"></i> Kirim Laporan
+            </button>
+        </div>
+    `;
+}
+
+function submitReport() {
+    const type = document.getElementById('report-type').value;
+    const title = document.getElementById('report-title').value;
+    const desc = document.getElementById('report-desc').value;
+    if (!title || !desc) { showToast('Lengkapi laporan', 'error'); return; }
+    
+    const reports = Store.get('reports');
+    reports.push({
+        id: Date.now().toString(),
+        userId: Store.currentUser.id,
+        userName: Store.currentUser.name,
+        type,
+        title,
+        description: desc,
+        status: 'pending',
+        createdAt: new Date().toISOString()
+    });
+    Store.set('reports', reports);
+    showToast('Laporan berhasil dikirim!', 'success');
+    document.getElementById('report-title').value = '';
+    document.getElementById('report-desc').value = '';
+}
+
+// ==================== SHOP (SELLER) ====================
+function renderShop(container) {
+    const user = Store.currentUser;
+    let shop = Store.get('shops').find(s => s.ownerId === user.id);
+    
+    if (!shop) {
+        container.innerHTML = `
+            <div style="text-align:center; padding:60px 20px;">
+                <i class="fas fa-store" style="font-size:64px; color:var(--text-muted); margin-bottom:20px;"></i>
+                <h2>Anda Belum Memiliki Toko</h2>
+                <p style="color:var(--text-muted); margin:12px 0 24px;">Daftarkan toko Anda untuk mulai berjualan</p>
+                <div style="max-width:400px; margin:0 auto;">
+                    <div class="form-group">
+                        <input type="text" class="form-input" id="shop-name" placeholder="Nama Toko (unik)">
+                    </div>
+                    <button class="btn btn-primary" style="width:100%;" onclick="registerShop()">
+                        <i class="fas fa-store"></i> Daftar Toko
+                    </button>
+                </div>
+            </div>
+        `;
+        return;
+    }
+    
+    Store.currentShop = shop;
+    const products = Store.get('products').filter(p => p.shopId === shop.id);
+    const orders = Store.get('orders').filter(o => o.sellerId === shop.id);
+    
+    container.innerHTML = `
+        <div class="top-header">
+            <div>
+                <h2><i class="fas fa-store" style="color:var(--primary);"></i> ${shop.name}</h2>
+                <div style="color:var(--text-muted); font-size:13px; margin-top:4px;">
+                    ${shop.blocked ? '<span class="badge badge-danger">DIBLOKIR</span>' : '<span class="badge badge-success">AKTIF</span>'}
+                    • ${products.length} Produk • ${orders.length} Pesanan
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="navigate('shop-products')" ${shop.blocked?'disabled':''}>
+                <i class="fas fa-plus"></i> Upload Produk
+            </button>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:rgba(14,165,233,0.2); color:var(--primary);"><i class="fas fa-box"></i></div>
+                <div class="stat-value">${products.length}</div>
+                <div class="stat-label">Total Produk</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:rgba(16,185,129,0.2); color:var(--success);"><i class="fas fa-shopping-bag"></i></div>
+                <div class="stat-value">${orders.filter(o => o.status === 'completed').length}</div>
+                <div class="stat-label">Terjual</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:rgba(245,158,11,0.2); color:var(--warning);"><i class="fas fa-clock"></i></div>
+                <div class="stat-value">${orders.filter(o => o.status === 'pending').length}</div>
+                <div class="stat-label">Pending</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:rgba(139,92,246,0.2); color:var(--accent);"><i class="fas fa-money-bill-wave"></i></div>
+                <div class="stat-value">Rp ${orders.filter(o => o.status === 'completed').reduce((a,o) => a + (o.price || 0), 0).toLocaleString('id-ID')}</div>
+                <div class="stat-label">Pendapatan</div>
+            </div>
+        </div>
+        
+        <h3 style="margin-bottom:16px;">Produk Terbaru</h3>
+        ${products.length ? `<div class="card-grid">${products.slice(0, 4).map(p => renderProductCard(p)).join('')}</div>` : `
+            <div class="empty-state">
+                <i class="fas fa-box-open"></i>
+                <h3>Belum ada produk</h3>
+                <button class="btn btn-primary" onclick="navigate('shop-products')">Upload Produk Pertama</button>
+            </div>
+        `}
+    `;
+}
+
+function registerShop() {
+    const name = document.getElementById('shop-name').value.trim();
+    if (!name) { showToast('Masukkan nama toko', 'error'); return; }
+    
+    const shops = Store.get('shops');
+    if (shops.find(s => s.name === name)) { showToast('Nama toko sudah digunakan', 'error'); return; }
+    
+    const shop = {
+        id: Date.now().toString(),
+        name,
+        ownerId: Store.currentUser.id,
+        blocked: false,
+        payments: [],
+        createdAt: new Date().toISOString()
+    };
+    shops.push(shop);
+    Store.set('shops', shops);
+    Store.currentShop = shop;
+    
+    // Update user role
+    Store.currentUser.role = 'seller';
+    updateUser(Store.currentUser);
+    
+    showToast('Toko berhasil didaftarkan!', 'success');
+    renderSidebar();
+    navigate('shop');
+}
+
+// ==================== SHOP PRODUCTS ====================
+function renderShopProducts(container) {
+    const shop = Store.currentShop;
+    if (!shop) { navigate('shop'); return; }
+    if (shop.blocked) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-ban" style="color:var(--danger);"></i>
+                <h2>Toko Diblokir</h2>
+                <p>Toko Anda telah diblokir oleh admin. Hubungi admin untuk informasi lebih lanjut.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    const products = Store.get('products').filter(p => p.shopId === shop.id);
+    
+    container.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h2><i class="fas fa-box-open" style="color:var(--primary);"></i> Produk Saya</h2>
+            <button class="btn btn-primary" onclick="uploadProduct()"><i class="fas fa-plus"></i> Upload Produk</button>
+        </div>
+        ${products.length ? `
+            <div class="card-grid">
+                ${products.map(p => `
+                    <div class="card">
+                        <div class="card-img">
+                            ${p.image ? `<img src="${p.image}">` : '<i class="fas fa-image" style="font-size:48px;"></i>'}
+                        </div>
+                        <div class="card-body">
+                            <div class="card-title">${p.name}</div>
+                            <div style="color:var(--text-muted); font-size:13px; margin-bottom:8px;">${p.game} • ${p.type}</div>
+                            <div class="card-meta">
+                                <span class="price">Rp ${p.price?.toLocaleString('id-ID')}</span>
+                                <span style="font-size:12px; color:var(--text-muted);">Stok: ${p.stock}</span>
+                            </div>
+                            <button class="btn btn-sm btn-danger" style="width:100%; margin-top:12px;" onclick="deleteProduct('${p.id}')">
+                                <i class="fas fa-trash"></i> Hapus
+                            </button>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        ` : `
+            <div class="empty-state">
+                <i class="fas fa-box-open"></i>
+                <h3>Belum ada produk</h3>
+            </div>
+        `}
+    `;
+}
+
+function uploadProduct() {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal" style="max-width:600px;">
+            <div class="modal-header"><h3>Upload Produk</h3></div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Foto Produk</label>
+                    <input type="file" id="prod-image" accept="image/*" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Nama Produk</label>
+                    <input type="text" class="form-input" id="prod-name" placeholder="Nama produk">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Game</label>
+                    <select class="form-select" id="prod-game">
+                        <option>Mobile Legends</option><option>Free Fire</option><option>PUBG Mobile</option>
+                        <option>Genshin Impact</option><option>Valorant</option><option>COD Mobile</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Jenis</label>
+                    <select class="form-select" id="prod-type">
+                        <option>Akun</option><option>Item</option><option>Jasa</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Stok</label>
+                    <input type="number" class="form-input" id="prod-stock" value="1" min="1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Harga (Rp)</label>
+                    <input type="number" class="form-input" id="prod-price" placeholder="100000">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Harga Koin (opsional)</label>
+                    <input type="number" class="form-input" id="prod-coin" placeholder="Biarkan kosong jika tidak menerima koin">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Deskripsi</label>
+                    <textarea class="form-textarea" id="prod-desc" placeholder="Deskripsi produk..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">Batal</button>
+                <button class="btn btn-primary" onclick="submitProduct(this.closest('.modal-overlay'))">Upload</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+function submitProduct(modal) {
+    const name = document.getElementById('prod-name').value;
+    const game = document.getElementById('prod-game').value;
+    const type = document.getElementById('prod-type').value;
+    const stock = parseInt(document.getElementById('prod-stock').value);
+    const price = parseInt(document.getElementById('prod-price').value);
+    const coinPrice = parseInt(document.getElementById('prod-coin').value) || null;
+    const desc = document.getElementById('prod-desc').value;
+    const fileInput = document.getElementById('prod-image');
+    
+    if (!name || !price) { showToast('Lengkapi data produk', 'error'); return; }
+    
+    const process = (image) => {
+        const products = Store.get('products');
+        products.push({
+            id: Date.now().toString(),
+            shopId: Store.currentShop.id,
+            name,
+            game,
+            type,
+            stock,
+            price,
+            coinPrice,
+            description: desc,
+            image,
+            sold: 0,
+            createdAt: new Date().toISOString()
+        });
+        Store.set('products', products);
+        modal.remove();
+        showToast('Produk berhasil diupload!', 'success');
+        navigate('shop-products');
+    };
+    
+    if (fileInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => process(e.target.result);
+        reader.readAsDataURL(fileInput.files[0]);
+    } else {
+        process(null);
+    }
+}
+
+function deleteProduct(productId) {
+    if (!confirm('Hapus produk ini?')) return;
+    let products = Store.get('products');
+    products = products.filter(p => p.id !== productId);
+    Store.set('products', products);
+    showToast('Produk dihapus', 'success');
+    navigate('shop-products');
+}
+
+// ==================== SHOP ORDERS ====================
+function renderShopOrders(container) {
+    const shop = Store.currentShop;
+    if (!shop) { navigate('shop'); return; }
+    const orders = Store.get('orders').filter(o => o.sellerId === shop.id).sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+    
+    container.innerHTML = `
+        <h2 style="margin-bottom:20px;"><i class="fas fa-box" style="color:var(--primary);"></i> Pesanan Masuk</h2>
+        ${orders.length ? `
+            <div class="table-container">
+                <table>
+                    <thead><tr><th>Pembeli</th><th>Produk</th><th>Harga</th><th>Status</th><th>Aksi</th></tr></thead>
+                    <tbody>
+                        ${orders.map(o => {
+                            const buyer = Store.get('users').find(u => u.id === o.buyerId) || { name: 'Unknown' };
+                            return `
+                                <tr>
+                                    <td>${buyer.name}</td>
+                                    <td>${o.productName}</td>
+                                    <td>${o.coinPrice ? o.coinPrice + ' Koin' : 'Rp ' + o.price?.toLocaleString('id-ID')}</td>
+                                    <td><span class="badge badge-${o.status==='completed'?'success':'warning'}">${o.status}</span></td>
+                                    <td>
+                                        ${o.status === 'pending' ? `
+                                            <button class="btn btn-sm btn-success" onclick="completeOrder('${o.id}')">
+                                                <i class="fas fa-check"></i> Selesai
+                                            </button>
+                                        ` : '<span style="color:var(--success);"><i class="fas fa-check-circle"></i></span>'}
+                                        <button class="btn btn-sm btn-outline" onclick="openChat('${o.id}', '${o.buyerId}', '${o.productName}')">
+                                            <i class="fas fa-comment"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            </div>
+        ` : `
+            <div class="empty-state">
+                <i class="fas fa-box"></i>
+                <h3>Belum ada pesanan</h3>
+            </div>
+        `}
+    `;
+}
+
+function completeOrder(orderId) {
+    const orders = Store.get('orders');
+    const idx = orders.findIndex(o => o.id === orderId);
+    if (idx === -1) return;
+    orders[idx].status = 'completed';
+    Store.set('orders', orders);
+    showToast('Pesanan diselesaikan!', 'success');
+    navigate('shop-orders');
+}
+
+// ==================== SHOP PAYMENTS ====================
+function renderShopPayments(container) {
+    const shop = Store.currentShop;
+    if (!shop) { navigate('shop'); return; }
+    const payments = shop.payments || [];
+    
+    container.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h2><i class="fas fa-credit-card" style="color:var(--primary);"></i> Metode Pembayaran</h2>
+            <button class="btn btn-primary" onclick="addPaymentMethod()"><i class="fas fa-plus"></i> Tambah</button>
+        </div>
+        ${payments.length ? `
+            <div style="display:flex; flex-direction:column; gap:12px;">
+                ${payments.map((pm, i) => `
+                    <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:16px; display:flex; align-items:center; gap:16px;">
+                        <div style="width:48px; height:48px; background:var(--bg-hover); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px;">
+                            <i class="fas fa-${pm.type==='qris'?'qrcode':pm.type==='dana'?'wallet':pm.type==='ovo'?'circle':'money-bill-wave'}"></i>
+                        </div>
+                        <div style="flex:1;">
+                            <div style="font-weight:600; text-transform:uppercase;">${pm.type}</div>
+                            <div style="font-size:13px; color:var(--text-muted);">${pm.name}</div>
+                            ${pm.number ? `<div style="font-size:14px; margin-top:2px;">${pm.number}</div>` : ''}
+                        </div>
+                        <button class="btn btn-sm btn-danger" onclick="removePayment(${i})"><i class="fas fa-trash"></i></button>
+                    </div>
+                `).join('')}
+            </div>
+        ` : `
+            <div class="empty-state">
+                <i class="fas fa-credit-card"></i>
+                <h3>Belum ada metode pembayaran</h3>
+                <p>Tambahkan metode pembayaran agar pembeli bisa checkout</p>
+            </div>
+        `}
+    `;
+}
+
+function addPaymentMethod() {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal">
+            <div class="modal-header"><h3>Tambah Metode Pembayaran</h3></div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Tipe</label>
+                    <select class="form-select" id="pay-type" onchange="togglePaymentFields()">
+                        <option value="dana">DANA</option>
+                        <option value="ovo">OVO</option>
+                        <option value="gopay">GoPay</option>
+                        <option value="qris">QRIS</option>
+                    </select>
+                </div>
+                <div id="e-wallet-fields">
+                    <div class="form-group">
+                        <label class="form-label">Nomor</label>
+                        <input type="text" class="form-input" id="pay-number" placeholder="Nomor e-wallet">
+                    </div>
+                </div>
+                <div id="qris-fields" class="hidden">
+                    <div class="form-group">
+                        <label class="form-label">Nama QRIS</label>
+                        <input type="text" class="form-input" id="pay-qris-name" placeholder="Nama pada QRIS">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Upload Foto QRIS</label>
+                        <input type="file" id="pay-qris-img" accept="image/*" class="form-input">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Atas Nama</label>
+                    <input type="text" class="form-input" id="pay-name" placeholder="Nama pemilik">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">Batal</button>
+                <button class="btn btn-primary" onclick="savePayment(this.closest('.modal-overlay'))">Simpan</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+function togglePaymentFields() {
+    const type = document.getElementById('pay-type').value;
+    document.getElementById('e-wallet-fields').classList.toggle('hidden', type === 'qris');
+    document.getElementById('qris-fields').classList.toggle('hidden', type !== 'qris');
+}
+
+function savePayment(modal) {
+    const type = document.getElementById('pay-type').value;
+    const name = document.getElementById('pay-name').value;
+    if (!name) { showToast('Lengkapi data', 'error'); return; }
+    
+    const payment = { type, name, id: Date.now().toString() };
+    if (type === 'qris') {
+        payment.qrisName = document.getElementById('pay-qris-name').value;
+        const file = document.getElementById('pay-qris-img').files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                payment.qrisImage = e.target.result;
+                finishSavePayment(payment, modal);
+            };
+            reader.readAsDataURL(file);
+            return;
+        }
+    } else {
+        payment.number = document.getElementById('pay-number').value;
+    }
+    finishSavePayment(payment, modal);
+}
+
+function finishSavePayment(payment, modal) {
+    const shops = Store.get('shops');
+    const idx = shops.findIndex(s => s.id === Store.currentShop.id);
+    shops[idx].payments = shops[idx].payments || [];
+    shops[idx].payments.push(payment);
+    Store.set('shops', shops);
+    Store.currentShop = shops[idx];
+    modal.remove();
+    showToast('Metode pembayaran ditambahkan!', 'success');
+    navigate('shop-payments');
+}
+
+function removePayment(index) {
+    if (!confirm('Hapus metode pembayaran ini?')) return;
+    const shops = Store.get('shops');
+    const idx = shops.findIndex(s => s.id === Store.currentShop.id);
+    shops[idx].payments.splice(index, 1);
+    Store.set('shops', shops);
+    Store.currentShop = shops[idx];
+    showToast('Metode pembayaran dihapus', 'success');
+    navigate('shop-payments');
+}
+
+// ==================== SHOP COIN ORDERS ====================
+function renderShopCoinOrders(container) {
+    container.innerHTML = `
+        <h2 style="margin-bottom:20px;"><i class="fas fa-coins" style="color:var(--warning);"></i> Pesanan Koin</h2>
+        <div class="empty-state">
+            <i class="fas fa-coins"></i>
+            <h3>Fitur Pesanan Koin Penjual</h3>
+            <p>Kelola pesanan yang dibayar dengan koin di sini</p>
+        </div>
+    `;
+}
+
+// ==================== SHOP MARKET PRICE ====================
+function renderShopMarketPrice(container) {
+    const prices = Store.get('market_prices');
+    container.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h2><i class="fas fa-chart-line" style="color:var(--primary);"></i> Harga Pasar</h2>
+            <button class="btn btn-primary" onclick="addMarketPrice()"><i class="fas fa-plus"></i> Tambah Info</button>
+        </div>
+        <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:20px;">
+            <i class="fas fa-info-circle" style="color:var(--primary);"></i> Informasi harga pasar membantu penjual menentukan harga yang kompetitif.
+        </div>
+        ${prices.length ? `
+            <div class="card-grid">
+                ${prices.map(p => `
+                    <div class="market-price-card">
+                        <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+                            ${p.image ? `<img src="${p.image}" style="width:60px; height:60px; object-fit:cover; border-radius:10px;">` : '<div class="game-icon" style="width:60px; height:60px; font-size:20px;">🎮</div>'}
+                            <div>
+                                <div style="font-weight:600;">${p.itemName}</div>
+                                <div style="font-size:13px; color:var(--text-muted);">${p.game}</div>
+                            </div>
+                        </div>
+                        <div style="margin-bottom:8px;"><span style="color:var(--text-muted); font-size:13px;">Spesialisasi:</span> <span style="font-weight:500;">${p.specialty}</span></div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <div style="font-size:12px; color:var(--text-muted);">Harga Pasar</div>
+                                <div style="font-size:20px; font-weight:700; color:var(--success);">Rp ${p.price?.toLocaleString('id-ID')}</div>
+                            </div>
+                            <div style="font-size:12px; color:var(--text-muted);">${new Date(p.date).toLocaleDateString('id-ID')}</div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        ` : `
+            <div class="empty-state">
+                <i class="fas fa-chart-line"></i>
+                <h3>Belum ada data harga pasar</h3>
+            </div>
+        `}
+    `;
+}
+
+function addMarketPrice() {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal">
+            <div class="modal-header"><h3>Tambah Harga Pasar</h3></div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Game</label>
+                    <select class="form-select" id="mp-game">
+                        <option>Mobile Legends</option><option>Free Fire</option><option>PUBG Mobile</option>
+                        <option>Genshin Impact</option><option>Valorant</option><option>COD Mobile</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Nama Item</label>
+                    <input type="text" class="form-input" id="mp-item" placeholder="Nama item">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Spesialisasi Item</label>
+                    <input type="text" class="form-input" id="mp-specialty" placeholder="Contoh: Skin Legend, Hero Tier S">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Harga Pasar (Rp)</label>
+                    <input type="number" class="form-input" id="mp-price" placeholder="Harga rata-rata pasar">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Foto Item (opsional)</label>
+                    <input type="file" id="mp-image" accept="image/*" class="form-input">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">Batal</button>
+                <button class="btn btn-primary" onclick="submitMarketPrice(this.closest('.modal-overlay'))">Simpan</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+function submitMarketPrice(modal) {
+    const game = document.getElementById('mp-game').value;
+    const itemName = document.getElementById('mp-item').value;
+    const specialty = document.getElementById('mp-specialty').value;
+    const price = parseInt(document.getElementById('mp-price').value);
+    const fileInput = document.getElementById('mp-image');
+    
+    if (!itemName || !price) { showToast('Lengkapi data', 'error'); return; }
+    
+    const save = (image) => {
+        const prices = Store.get('market_prices');
+        prices.push({
+            id: Date.now().toString(),
+            game,
+            itemName,
+            specialty,
+            price,
+            image,
+            date: new Date().toISOString()
+        });
+        Store.set('market_prices', prices);
+        modal.remove();
+        showToast('Harga pasar ditambahkan!', 'success');
+        navigate('shop-market-price');
+    };
+    
+    if (fileInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => save(e.target.result);
+        reader.readAsDataURL(fileInput.files[0]);
+    } else save(null);
+}
+
+// ==================== SHOP CALCULATOR ====================
+function renderShopCalculator(container) {
+    container.innerHTML = `
+        <h2 style="margin-bottom:20px;"><i class="fas fa-calculator" style="color:var(--primary);"></i> Kalkulator Penjual</h2>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+            <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:20px;">
+                <h3 style="margin-bottom:16px;">Kalkulator Harga Jual</h3>
+                <div class="form-group">
+                    <label class="form-label">Harga Modal (Rp)</label>
+                    <input type="number" class="form-input" id="calc-modal" placeholder="0" oninput="calculatePrice()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Keuntungan (%)</label>
+                    <input type="number" class="form-input" id="calc-profit" value="20" oninput="calculatePrice()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Biaya Lain (Rp)</label>
+                    <input type="number" class="form-input" id="calc-fee" placeholder="0" oninput="calculatePrice()">
+                </div>
+                <div style="background:var(--bg-dark); border-radius:12px; padding:16px; margin-top:16px;">
+                    <div style="font-size:13px; color:var(--text-muted);">Harga Jual Rekomendasi</div>
+                    <div id="calc-result" style="font-size:28px; font-weight:700; color:var(--primary);">Rp 0</div>
+                </div>
+            </div>
+            <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:20px;">
+                <h3 style="margin-bottom:16px;">Kalkulator Koin</h3>
+                <div class="form-group">
+                    <label class="form-label">Harga Produk (Rp)</label>
+                    <input type="number" class="form-input" id="calc-coin-rp" placeholder="0" oninput="calculateCoin()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Rate (Rp per Koin)</label>
+                    <input type="number" class="form-input" id="calc-coin-rate" value="2000" oninput="calculateCoin()">
+                </div>
+                <div style="background:var(--bg-dark); border-radius:12px; padding:16px; margin-top:16px;">
+                    <div style="font-size:13px; color:var(--text-muted);">Setara Koin</div>
+                    <div id="calc-coin-result" style="font-size:28px; font-weight:700; color:var(--warning);">0 Koin</div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function calculatePrice() {
+    const modal = parseFloat(document.getElementById('calc-modal')?.value) || 0;
+    const profit = parseFloat(document.getElementById('calc-profit')?.value) || 0;
+    const fee = parseFloat(document.getElementById('calc-fee')?.value) || 0;
+    const result = modal + (modal * profit / 100) + fee;
+    const el = document.getElementById('calc-result');
+    if (el) el.textContent = 'Rp ' + Math.round(result).toLocaleString('id-ID');
+}
+
+function calculateCoin() {
+    const rp = parseFloat(document.getElementById('calc-coin-rp')?.value) || 0;
+    const rate = parseFloat(document.getElementById('calc-coin-rate')?.value) || 2000;
+    const result = Math.round(rp / rate);
+    const el = document.getElementById('calc-coin-result');
+    if (el) el.textContent = result.toLocaleString('id-ID') + ' Koin';
+}
+
+// ==================== SHOP COIN EXCHANGE ====================
+function renderShopCoinExchange(container) {
+    container.innerHTML = `
+        <h2 style="margin-bottom:20px;"><i class="fas fa-hand-holding-usd" style="color:var(--warning);"></i> Tukar Koin Penjual</h2>
+        <div style="background:linear-gradient(135deg, rgba(245,158,11,0.2), rgba(217,119,6,0.2)); border:1px solid var(--warning); border-radius:16px; padding:20px; margin-bottom:24px;">
+            <div style="font-size:13px; color:var(--text-muted);">Saldo Koin Anda</div>
+            <div style="font-size:32px; font-weight:700; color:var(--warning);">${Store.currentUser.coins || 0} <i class="fas fa-coins"></i></div>
+        </div>
+        <div class="empty-state">
+            <i class="fas fa-hand-holding-usd"></i>
+            <h3>Tukar Koin</h3>
+            <p>Fitur tukar koin untuk penjual</p>
+        </div>
+    `;
+}
+
+// ==================== SHOP MESSAGES ====================
+function renderShopMessages(container) {
+    const messages = Store.get('admin_messages').filter(m => m.shopId === Store.currentShop?.id);
+    container.innerHTML = `
+        <h2 style="margin-bottom:20px;"><i class="fas fa-envelope" style="color:var(--primary);"></i> Pesan Admin</h2>
+        ${messages.length ? `
+            <div style="display:flex; flex-direction:column; gap:12px;">
+                ${messages.map(m => `
+                    <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:16px;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                            <span class="badge badge-primary">${m.type || 'Pengumuman'}</span>
+                            <span style="font-size:12px; color:var(--text-muted);">${new Date(m.date).toLocaleDateString('id-ID')}</span>
+                        </div>
+                        <div style="font-weight:600; margin-bottom:4px;">${m.title}</div>
+                        <div style="color:var(--text-muted); font-size:13px;">${m.content}</div>
+                    </div>
+                `).join('')}
+            </div>
+        ` : `
+            <div class="empty-state">
+                <i class="fas fa-envelope"></i>
+                <h3>Belum ada pesan</h3>
+            </div>
+        `}
+    `;
+}
+
+// ==================== ADMIN DASHBOARD ====================
+function renderAdminDashboard(container) {
+    const users = Store.get('users');
+    const shops = Store.get('shops');
+    const orders = Store.get('orders');
+    const products = Store.get('products');
+    const totalCoins = users.reduce((a, u) => a + (u.coins || 0), 0);
+    
+    container.innerHTML = `
+        <h2 style="margin-bottom:20px;"><i class="fas fa-chart-pie" style="color:var(--primary);"></i> Dashboard Admin</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:rgba(14,165,233,0.2); color:var(--primary);"><i class="fas fa-users"></i></div>
+                <div class="stat-value">${users.length}</div>
+                <div class="stat-label">Total User</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:rgba(16,185,129,0.2); color:var(--success);"><i class="fas fa-store"></i></div>
+                <div class="stat-value">${shops.length}</div>
+                <div class="stat-label">Total Toko</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:rgba(245,158,11,0.2); color:var(--warning);"><i class="fas fa-shopping-cart"></i></div>
+                <div class="stat-value">${orders.length}</div>
+                <div class="stat-label">Total Pesanan</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:rgba(139,92,246,0.2); color:var(--accent);"><i class="fas fa-coins"></i></div>
+                <div class="stat-value">${totalCoins}</div>
+                <div class="stat-label">Total Koin Beredar</div>
+            </div>
+        </div>
+        
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-top:24px;">
+            <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:20px;">
+                <h3 style="margin-bottom:16px;">Pendapatan Admin</h3>
+                <div style="font-size:36px; font-weight:700; color:var(--success);">
+                    Rp ${orders.filter(o => o.sellerId === 'admin' || !o.sellerId).reduce((a,o) => a + (o.price || 0), 0).toLocaleString('id-ID')}
+                </div>
+                <div style="color:var(--text-muted); margin-top:8px;">Dari penjualan produk admin</div>
+            </div>
+            <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:20px;">
+                <h3 style="margin-bottom:16px;">Pendapatan Penjual</h3>
+                <div style="font-size:36px; font-weight:700; color:var(--primary);">
+                    Rp ${orders.filter(o => o.sellerId !== 'admin' && o.sellerId).reduce((a,o) => a + (o.price || 0), 0).toLocaleString('id-ID')}
+                </div>
+                <div style="color:var(--text-muted); margin-top:8px;">Total transaksi penjual</div>
+            </div>
+        </div>
+    `;
+}
+
+// ==================== ADMIN SHOPS ====================
+function renderAdminShops(container) {
+    const shops = Store.get('shops');
+    container.innerHTML = `
+        <h2 style="margin-bottom:20px;"><i class="fas fa-store" style="color:var(--primary);"></i> Kelola Toko</h2>
+        <div class="table-container">
+            <table>
+                <thead><tr><th>Toko</th><th>Pemilik</th><th>Produk</th><th>Status</th><th>Aksi</th></tr></thead>
+                <tbody>
+                    ${shops.map(s => {
+                        const owner = Store.get('users').find(u => u.id === s.ownerId) || { name: 'Unknown' };
+                        const productCount = Store.get('products').filter(p => p.shopId === s.id).length;
+                        return `
+                            <tr>
+                                <td><strong>${s.name}</strong></td>
+                                <td>${owner.name}</td>
+                                <td>${productCount}</td>
+                                <td><span class="badge badge-${s.blocked?'danger':'success'}">${s.blocked?'Diblokir':'Aktif'}</span></td>
+                                <td>
+                                    <button class="btn btn-sm ${s.blocked?'btn-success':'btn-danger'}" onclick="toggleShopBlock('${s.id}')">
+                                        ${s.blocked?'<i class="fas fa-unlock"></i> Buka':'<i class="fas fa-ban"></i> Blokir'}
+                                    </button>
+                                    <button class="btn btn-sm btn-outline" onclick="chatSeller('${s.ownerId}', '${s.name}')">
+                                        <i class="fas fa-comment"></i> Chat
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+}
+
+function toggleShopBlock(shopId) {
+    const shops = Store.get('shops');
+    const idx = shops.findIndex(s => s.id === shopId);
+    shops[idx].blocked = !shops[idx].blocked;
+    Store.set('shops', shops);
+    showToast(shops[idx].blocked ? 'Toko diblokir' : 'Blokir toko dibuka', 'success');
+    navigate('admin-shops');
+}
+
+function chatSeller(sellerId, shopName) {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.style.alignItems = 'flex-end';
+    modal.innerHTML = `
+        <div style="background:var(--bg-card); width:100%; max-width:600px; height:80vh; border-radius:20px 20px 0 0; display:flex; flex-direction:column; border:1px solid var(--border);">
+            <div style="padding:16px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px;">
+                <button class="btn btn-sm btn-outline" onclick="this.closest('.modal-overlay').remove()"><i class="fas fa-arrow-left"></i></button>
+                <div><div style="font-weight:600;">${shopName}</div><div style="font-size:12px; color:var(--text-muted);">Chat dengan penjual</div></div>
+            </div>
+            <div id="admin-chat-messages" style="flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:12px;"></div>
+            <div style="padding:16px; border-top:1px solid var(--border); display:flex; gap:10px; background:var(--bg-dark);">
+                <input type="text" id="admin-chat-input" class="form-input" placeholder="Ketik pesan..." style="flex:1;" onkeyup="if(event.key==='Enter') sendAdminChat('${sellerId}')">
+                <button class="btn btn-primary" onclick="sendAdminChat('${sellerId}')"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    loadAdminChat(sellerId);
+}
+
+function loadAdminChat(sellerId) {
+    const container = document.getElementById('admin-chat-messages');
+    if (!container) return;
+    // Use a special chat key for admin-seller chat
+    const chats = Store.get('chats').filter(c => c.adminChat === true && ((c.senderId === Store.currentUser.id && c.receiverId === sellerId) || (c.senderId === sellerId && c.receiverId === Store.currentUser.id)));
+    container.innerHTML = chats.map(c => `
+        <div class="chat-message ${c.senderId === Store.currentUser.id ? 'sent' : 'received'}">${c.text}</div>
+    `).join('');
+    container.scrollTop = container.scrollHeight;
+}
+
+function sendAdminChat(sellerId) {
+    const input = document.getElementById('admin-chat-input');
+    const text = input.value.trim();
+    if (!text) return;
+    const chats = Store.get('chats');
+    chats.push({
+        id: Date.now().toString(),
+        senderId: Store.currentUser.id,
+        receiverId: sellerId,
+        text,
+        adminChat: true,
+        time: new Date().toISOString()
+    });
+    Store.set('chats', chats);
+    input.value = '';
+    loadAdminChat(sellerId);
+}
+
+// ==================== ADMIN ORDERS ====================
+function renderAdminOrders(container) {
+    const orders = Store.get('orders').filter(o => o.sellerId === 'admin' || !o.sellerId).sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+    container.innerHTML = `
+        <h2 style="margin-bottom:20px;"><i class="fas fa-shopping-cart" style="color:var(--primary);"></i> Pesanan Admin</h2>
+        ${orders.length ? `
+            <div class="table-container">
+                <table>
+                    <thead><tr><th>Pembeli</th><th>Produk</th><th>Harga</th><th>Status</th><th>Aksi</th></tr></thead>
+                    <tbody>
+                        ${orders.map(o => {
+                            const buyer = Store.get('users').find(u => u.id === o.buyerId) || { name: 'Unknown' };
+                            return `
+                                <tr>
+                                    <td>${buyer.name}</td>
+                                    <td>${o.productName}</td>
+                                    <td>${o.coinPrice ? o.coinPrice + ' Koin' : 'Rp ' + o.price?.toLocaleString('id-ID')}</td>
+                                    <td><span class="badge badge-${o.status==='completed'?'success':'warning'}">${o.status}</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline" onclick="openChat('${o.id}', '${o.buyerId}', '${o.productName}')">
+                                            <i class="fas fa-comment"></i> Chat
+                                        </button>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            </div>
+        ` : `
+            <div class="empty-state">
+                <i class="fas fa-shopping-cart"></i>
+                <h3>Belum ada pesanan admin</h3>
+            </div>
+        `}
+    `;
+}
+
+// ==================== ADMIN COIN PRODUCTS ====================
+function renderAdminCoinProducts(container) {
+    const products = Store.get('coin_products');
+    container.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h2><i class="fas fa-coins" style="color:var(--warning);"></i> Produk Koin</h2>
+            <button class="btn btn-primary" onclick="addCoinProduct()"><i class="fas fa-plus"></i> Tambah Produk</button>
+        </div>
+        ${products.length ? `
+            <div class="card-grid">
+                ${products.map(p => `
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="card-title">${p.name}</div>
+                            <div style="color:var(--text-muted); font-size:13px; margin-bottom:8px;">${p.description}</div>
+                            <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+                                <i class="fas fa-coins" style="color:var(--warning);"></i>
+                                <span style="font-weight:700; color:var(--warning);">${p.coinPrice} Koin</span>
+                            </div>
+                            <div style="display:flex; gap:8px;">
+                                <button class="btn btn-sm ${p.active!==false?'btn-danger':'btn-success'}" style="flex:1;" onclick="toggleCoinProduct('${p.id}')">
+                                    ${p.active!==false?'Nonaktif':'Aktif'}
                                 </button>
-                            </form>
-                            <div class="text-center mt-8 p-4 glass rounded-2xl">
-                                <p class="text-sm text-gray-400 mb-2">Demo Akun:</p>
-                                <div class="text-xs space-y-1">
-                                    <div>👑 admin3market / admin123</div>
-                                    <div>🛒 budi@email.com / 123456</div>
-                                    <div>🏪 seller@email.com / 123456</div>
-                                </div>
-                            </div>
-                            <div class="text-center mt-6">
-                                <button id="toRegisterBtn" class="text-cyan-400 hover:text-cyan-300 font-medium underline">
-                                    Belum punya akun? Daftar sekarang
+                                <button class="btn btn-sm btn-danger" onclick="deleteCoinProduct('${p.id}')">
+                                    <i class="fas fa-trash"></i>
                                 </button>
                             </div>
                         </div>
                     </div>
-                `;
-            }
+                `).join('')}
+            </div>
+        ` : `
+            <div class="empty-state">
+                <i class="fas fa-coins"></i>
+                <h3>Belum ada produk koin</h3>
+            </div>
+        `}
+    `;
+}
 
-            // ===== EVENT BINDING =====
-            bindGlobalEvents() {
-                // Mobile menu
-                document.getElementById('mobileMenuBtn')?.addEventListener('click', () => {
-                    document.getElementById('sidebar').classList.toggle('-translate-x-full');
-                });
+function addCoinProduct() {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal" style="max-width:600px;">
+            <div class="modal-header"><h3>Tambah Produk Koin</h3></div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Nama Produk</label>
+                    <input type="text" class="form-input" id="cp-name" placeholder="Nama produk">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Deskripsi</label>
+                    <textarea class="form-textarea" id="cp-desc" placeholder="Deskripsi..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Harga Koin</label>
+                    <input type="number" class="form-input" id="cp-price" placeholder="Jumlah koin">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Formulir Custom (JSON)</label>
+                    <textarea class="form-textarea" id="cp-form" placeholder='[{"name":"id_game","label":"ID Game","placeholder":"Masukkan ID Game"}]'></textarea>
+                    <small style="color:var(--text-muted);">Format: [{"name":"field","label":"Label","placeholder":"Placeholder"}]</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">Batal</button>
+                <button class="btn btn-primary" onclick="submitCoinProduct(this.closest('.modal-overlay'))">Simpan</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
 
-                // Profile modal
-                document.getElementById('profileBtn')?.addEventListener('click', () => this.showProfileModal());
-                document.getElementById('closeProfileModal')?.addEventListener('click', () => 
-                    document.getElementById('profileModal').classList.add('hidden'));
-                document.getElementById('logoutBtn')?.addEventListener('click', () => this.logout());
+function submitCoinProduct(modal) {
+    const name = document.getElementById('cp-name').value;
+    const desc = document.getElementById('cp-desc').value;
+    const price = parseInt(document.getElementById('cp-price').value);
+    const formStr = document.getElementById('cp-form').value;
+    let formFields = [];
+    try { if (formStr) formFields = JSON.parse(formStr); } catch(e) {}
+    
+    if (!name || !price) { showToast('Lengkapi data', 'error'); return; }
+    
+    const products = Store.get('coin_products');
+    products.push({
+        id: Date.now().toString(),
+        name,
+        description: desc,
+        coinPrice: price,
+        formFields,
+        active: true
+    });
+    Store.set('coin_products', products);
+    modal.remove();
+    showToast('Produk koin ditambahkan!', 'success');
+    navigate('admin-coin-products');
+}
 
-                // Notifications
-                document.getElementById('notificationBtn')?.addEventListener('click', () => this.showNotifications());
-            }
+function toggleCoinProduct(productId) {
+    const products = Store.get('coin_products');
+    const idx = products.findIndex(p => p.id === productId);
+    products[idx].active = products[idx].active === false ? true : false;
+    Store.set('coin_products', products);
+    showToast('Status produk diubah', 'success');
+    navigate('admin-coin-products');
+}
 
-            bindSidebarEvents() {
-                document.querySelectorAll('.nav-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const page = btn.dataset.page;
-                        if (page) {
-                            this.showPage(page);
-                            document.getElementById('sidebar')?.classList.add('-translate-x-full');
-                        }
-                    });
-                });
+function deleteCoinProduct(productId) {
+    if (!confirm('Hapus produk koin ini?')) return;
+    let products = Store.get('coin_products');
+    products = products.filter(p => p.id !== productId);
+    Store.set('coin_products', products);
+    showToast('Produk koin dihapus', 'success');
+    navigate('admin-coin-products');
+}
 
-                const createStoreBtn = document.getElementById('createStoreBtn');
-                if (createStoreBtn) {
-                    createStoreBtn.addEventListener('click', () => this.createStore());
-                }
-            }
+// ==================== ADMIN COIN REQUESTS ====================
+function renderAdminCoinRequests(container) {
+    const requests = Store.get('coin_requests').filter(r => r.status === 'pending');
+    container.innerHTML = `
+        <h2 style="margin-bottom:20px;"><i class="fas fa-clipboard-list" style="color:var(--primary);"></i> Permintaan Tukar Koin</h2>
+        ${requests.length ? `
+            <div class="card-grid">
+                ${requests.map(r => {
+                    const buyer = Store.get('users').find(u => u.id === r.buyerId) || { name: 'Unknown' };
+                    return `
+                        <div class="card">
+                            <div class="card-body">
+                                <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+                                    <span class="badge badge-warning">PENDING</span>
+                                    <span style="font-size:12px; color:var(--text-muted);">${new Date(r.createdAt).toLocaleDateString('id-ID')}</span>
+                                </div>
+                                <div class="card-title">${r.productName}</div>
+                                <div style="margin-bottom:8px;"><i class="fas fa-user" style="color:var(--text-muted);"></i> ${buyer.name}</div>
+                                <div style="margin-bottom:12px;"><i class="fas fa-coins" style="color:var(--warning);"></i> ${r.coinPrice} Koin</div>
+                                ${r.formData ? Object.entries(r.formData).map(([k,v]) => `<div style="font-size:13px; margin-bottom:4px;"><strong>${k}:</strong> ${v}</div>`).join('') : ''}
+                                <div style="display:flex; gap:8px; margin-top:12px;">
+                                    <button class="btn btn-sm btn-success" style="flex:1;" onclick="approveCoinRequest('${r.id}')">
+                                        <i class="fas fa-check"></i> Setujui
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" style="flex:1;" onclick="rejectCoinRequest('${r.id}')">
+                                        <i class="fas fa-times"></i> Tolak
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        ` : `
+            <div class="empty-state">
+                <i class="fas fa-clipboard-check"></i>
+                <h3>Tidak ada permintaan pending</h3>
+            </div>
+        `}
+    `;
+}
 
-            // ===== UTILITY METHODS =====
-            showToast(message, type = 'info') {
-                const toastContainer = document.getElementById('toastContainer');
-                toastContainer.classList.remove('hidden');
-                
-                const toast = document.createElement('div');
-                toast.className = `glass p-4 rounded-2xl glass-hover animate-slide-in-right max-w-sm shadow-2xl ${
-                    type === 'success' ? 'border-l-4 border-emerald-400' :
-                    type === 'error' ? 'border-l-4 border-red-400' : 'border-l-4 border-cyan-400'
-                }`;
-                toast.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <i class="fas ${type === 'success' ? 'fa-check-circle text-emerald-400' : 
-                                      type === 'error' ? 'fa-exclamation-circle text-red-400' : 
-                                      'fa-info-circle text-cyan-400'} text-xl"></i>
-                        <span class="font-medium">${message}</span>
+function approveCoinRequest(requestId) {
+    const requests = Store.get('coin_requests');
+    const idx = requests.findIndex(r => r.id === requestId);
+    requests[idx].status = 'approved';
+    Store.set('coin_requests', requests);
+    showToast('Permintaan disetujui!', 'success');
+    navigate('admin-coin-requests');
+}
+
+function rejectCoinRequest(requestId) {
+    const requests = Store.get('coin_requests');
+    const idx = requests.findIndex(r => r.id === requestId);
+    const req = requests[idx];
+    
+    // Return coins
+    const users = Store.get('users');
+    const uIdx = users.findIndex(u => u.id === req.buyerId);
+    if (uIdx !== -1) {
+        users[uIdx].coins = (users[uIdx].coins || 0) + req.coinPrice;
+        Store.set('users', users);
+        if (Store.currentUser.id === req.buyerId) Store.currentUser = users[uIdx];
+    }
+    
+    requests[idx].status = 'rejected';
+    Store.set('coin_requests', requests);
+    showToast('Permintaan ditolak, koin dikembalikan', 'warning');
+    navigate('admin-coin-requests');
+}
+
+// ==================== ADMIN PRODUCTS ====================
+function renderAdminProducts(container) {
+    const products = Store.get('products').filter(p => !p.shopId || p.shopId === 'admin');
+    container.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h2><i class="fas fa-gamepad" style="color:var(--primary);"></i> Produk Admin</h2>
+            <button class="btn btn-primary" onclick="uploadProductAdmin()"><i class="fas fa-plus"></i> Tambah Produk</button>
+        </div>
+        ${products.length ? `
+            <div class="card-grid">
+                ${products.map(p => renderProductCard(p)).join('')}
+            </div>
+        ` : `
+            <div class="empty-state">
+                <i class="fas fa-gamepad"></i>
+                <h3>Belum ada produk admin</h3>
+            </div>
+        `}
+    `;
+}
+
+function uploadProductAdmin() {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal" style="max-width:600px;">
+            <div class="modal-header"><h3>Tambah Produk Admin</h3></div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Nama Produk</label>
+                    <input type="text" class="form-input" id="ap-name" placeholder="Nama produk">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Game</label>
+                    <select class="form-select" id="ap-game">
+                        <option>Mobile Legends</option><option>Free Fire</option><option>PUBG Mobile</option>
+                        <option>Genshin Impact</option><option>Valorant</option><option>COD Mobile</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Jenis</label>
+                    <select class="form-select" id="ap-type"><option>Akun</option><option>Item</option><option>Jasa</option></select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Harga (Rp)</label>
+                    <input type="number" class="form-input" id="ap-price" placeholder="100000">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Koin Admin (per penjualan)</label>
+                    <input type="number" class="form-input" id="ap-admin-coin" value="10" placeholder="Koin yang didapat admin">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Stok</label>
+                    <input type="number" class="form-input" id="ap-stock" value="10">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Deskripsi</label>
+                    <textarea class="form-textarea" id="ap-desc"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">Batal</button>
+                <button class="btn btn-primary" onclick="submitAdminProduct(this.closest('.modal-overlay'))">Simpan</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+function submitAdminProduct(modal) {
+    const name = document.getElementById('ap-name').value;
+    const game = document.getElementById('ap-game').value;
+    const type = document.getElementById('ap-type').value;
+    const price = parseInt(document.getElementById('ap-price').value);
+    const adminCoin = parseInt(document.getElementById('ap-admin-coin').value) || 0;
+    const stock = parseInt(document.getElementById('ap-stock').value);
+    const desc = document.getElementById('ap-desc').value;
+    
+    if (!name || !price) { showToast('Lengkapi data', 'error'); return; }
+    
+    const products = Store.get('products');
+    products.push({
+        id: Date.now().toString(),
+        shopId: 'admin',
+        name,
+        game,
+        type,
+        price,
+        adminCoin,
+        stock,
+        description: desc,
+        sold: 0,
+        createdAt: new Date().toISOString()
+    });
+    Store.set('products', products);
+    modal.remove();
+    showToast('Produk admin ditambahkan!', 'success');
+    navigate('admin-products');
+}
+
+// ==================== ADMIN COINS ====================
+function renderAdminCoins(container) {
+    const users = Store.get('users');
+    container.innerHTML = `
+        <h2 style="margin-bottom:20px;"><i class="fas fa-wallet" style="color:var(--warning);"></i> Kelola Koin</h2>
+        <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:20px; margin-bottom:24px;">
+            <h3 style="margin-bottom:16px;">Top Up Koin User</h3>
+            <div class="form-group">
+                <label class="form-label">Pilih User</label>
+                <select class="form-select" id="coin-user">
+                    ${users.map(u => `<option value="${u.id}">${u.name} (${u.email}) - ${u.coins || 0} koin</option>`).join('')}
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Jumlah Koin</label>
+                <input type="number" class="form-input" id="coin-amount" placeholder="Jumlah koin">
+            </div>
+            <button class="btn btn-warning" onclick="addCoinsToUser()">
+                <i class="fas fa-plus"></i> Tambah Koin
+            </button>
+        </div>
+        
+        <h3 style="margin-bottom:16px;">Daftar User & Koin</h3>
+        <div class="table-container">
+            <table>
+                <thead><tr><th>User</th><th>Email</th><th>Koin</th></tr></thead>
+                <tbody>
+                    ${users.map(u => `
+                        <tr>
+                            <td>${u.name}</td>
+                            <td>${u.email}</td>
+                            <td><span class="coin-badge" style="padding:4px 10px; font-size:12px;"><i class="fas fa-coins"></i> ${u.coins || 0}</span></td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+}
+
+function addCoinsToUser() {
+    const userId = document.getElementById('coin-user').value;
+    const amount = parseInt(document.getElementById('coin-amount').value);
+    if (!amount || amount <= 0) { showToast('Masukkan jumlah koin', 'error'); return; }
+    
+    const users = Store.get('users');
+    const idx = users.findIndex(u => u.id === userId);
+    if (idx === -1) return;
+    users[idx].coins = (users[idx].coins || 0) + amount;
+    Store.set('users', users);
+    
+    if (Store.currentUser.id === userId) Store.currentUser = users[idx];
+    
+    showToast(`Berhasil menambah ${amount} koin ke ${users[idx].name}!`, 'success');
+    navigate('admin-coins');
+}
+
+// ==================== ADMIN REPORTS ====================
+function renderAdminReports(container) {
+    const reports = Store.get('reports').sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+    container.innerHTML = `
+        <h2 style="margin-bottom:20px;"><i class="fas fa-exclamation-triangle" style="color:var(--danger);"></i> Laporan Masuk</h2>
+        ${reports.length ? `
+            <div style="display:flex; flex-direction:column; gap:12px;">
+                ${reports.map(r => `
+                    <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:16px;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                            <div>
+                                <span class="badge badge-${r.type==='bug'?'warning':r.type==='unsafe'?'danger':'primary'}">${r.type.toUpperCase()}</span>
+                                <span style="font-weight:600; margin-left:8px;">${r.title}</span>
+                            </div>
+                            <span style="font-size:12px; color:var(--text-muted);">${new Date(r.createdAt).toLocaleDateString('id-ID')}</span>
+                        </div>
+                        <div style="color:var(--text-muted); font-size:13px; margin-bottom:8px;">${r.description}</div>
+                        <div style="font-size:12px;">Dari: <strong>${r.userName}</strong></div>
                     </div>
-                `;
-                
-                toastContainer.appendChild(toast);
-                setTimeout(() => toast.remove(), 4000);
-            }
+                `).join('')}
+            </div>
+        ` : `
+            <div class="empty-state">
+                <i class="fas fa-check-circle" style="color:var(--success);"></i>
+                <h3>Tidak ada laporan</h3>
+            </div>
+        `}
+    `;
+}
 
-            showSplash() {
-                setTimeout(() => {
-                    document.getElementById('loadingScreen').classList.add('hidden');
-                    document.getElementById('app').classList.remove('hidden');
-                    if (!this.currentUser) {
-                        this.showPage('login');
-                    } else {
-                        this.showPage('home');
-                    }
-                }, 1500);
-            }
+// ==================== ADMIN ANNOUNCEMENTS ====================
+function renderAdminAnnouncements(container) {
+    const announcements = Store.get('announcements');
+    container.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h2><i class="fas fa-bullhorn" style="color:var(--primary);"></i> Pengumuman</h2>
+            <button class="btn btn-primary" onclick="addAnnouncement()"><i class="fas fa-plus"></i> Buat Pengumuman</button>
+        </div>
+        <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:20px; margin-bottom:24px;">
+            <h3 style="margin-bottom:16px;">Kirim Pesan ke Penjual/Pembeli</h3>
+            <div class="form-group">
+                <label class="form-label">Tujuan</label>
+                <select class="form-select" id="msg-target">
+                    <option value="all">Semua User</option>
+                    ${Store.get('shops').map(s => `<option value="${s.id}">Toko: ${s.name}</option>`).join('')}
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Judul</label>
+                <input type="text" class="form-input" id="msg-title" placeholder="Judul pesan">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Isi Pesan</label>
+                <textarea class="form-textarea" id="msg-content" placeholder="Isi pesan..."></textarea>
+            </div>
+            <button class="btn btn-primary" onclick="sendAdminMessage()">
+                <i class="fas fa-paper-plane"></i> Kirim Pesan
+            </button>
+        </div>
+        
+        <h3 style="margin-bottom:16px;">Riwayat Pengumuman</h3>
+        ${announcements.length ? `
+            <div style="display:flex; flex-direction:column; gap:12px;">
+                ${announcements.map(a => `
+                    <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:16px;">
+                        <div style="font-weight:600; margin-bottom:4px;">${a.title}</div>
+                        <div style="color:var(--text-muted); font-size:13px;">${a.content}</div>
+                        <div style="font-size:11px; color:var(--text-muted); margin-top:8px;">${new Date(a.date).toLocaleDateString('id-ID')}</div>
+                    </div>
+                `).join('')}
+            </div>
+        ` : '<div class="empty-state"><i class="fas fa-bullhorn"></i><h3>Belum ada pengumuman</h3></div>'}
+    `;
+}
 
-            // ===== AUTH METHODS ===== (implement as needed)
-            async checkAuth() {
-                const userData = localStorage.getItem('3m_currentUser');
-                if (userData) {
-                    this.currentUser = JSON.parse(userData);
-                }
-            }
+function addAnnouncement() {
+    const title = prompt('Judul pengumuman:');
+    if (!title) return;
+    const content = prompt('Isi pengumuman:');
+    if (!content) return;
+    
+    const announcements = Store.get('announcements');
+    announcements.push({ id: Date.now().toString(), title, content, date: new Date().toISOString() });
+    Store.set('announcements', announcements);
+    showToast('Pengumuman dibuat!', 'success');
+    navigate('admin-announcements');
+}
 
-            updateCoinDisplay() {
-                const coinSpan = document.getElementById('coinAmount');
-                if (coinSpan) {
-                    coinSpan.textContent = this.currentUser?.coins || 0;
-                }
-            }
+function sendAdminMessage() {
+    const target = document.getElementById('msg-target').value;
+    const title = document.getElementById('msg-title').value;
+    const content = document.getElementById('msg-content').value;
+    if (!title || !content) { showToast('Lengkapi pesan', 'error'); return; }
+    
+    const messages = Store.get('admin_messages');
+    if (target === 'all') {
+        Store.get('shops').forEach(s => {
+            messages.push({ id: Date.now().toString() + s.id, shopId: s.id, title, content, type: 'announcement', date: new Date().toISOString() });
+        });
+    } else {
+        messages.push({ id: Date.now().toString(), shopId: target, title, content, type: 'direct', date: new Date().toISOString() });
+    }
+    Store.set('admin_messages', messages);
+    showToast('Pesan terkirim!', 'success');
+    document.getElementById('msg-title').value = '';
+    document.getElementById('msg-content').value = '';
+}
 
-            updateNotificationBadge() {
-                const unreadCount = this.db.notifications.filter(n => !n.read).length;
-                const badge = document.getElementById('notificationBadge');
-                if (badge) {
-                    badge.textContent = unreadCount;
-                    badge.classList.toggle('hidden', unreadCount === 0);
-                }
-            }
+// ==================== PROFILE ====================
+function renderProfile(container) {
+    container.innerHTML = `
+        <h2 style="margin-bottom:20px;"><i class="fas fa-user" style="color:var(--primary);"></i> Profil</h2>
+        <div style="max-width:500px; background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:24px;">
+            <div style="text-align:center; margin-bottom:24px;">
+                <div class="avatar" style="width:80px; height:80px; font-size:32px; margin:0 auto 12px;">${Store.currentUser.name[0]}</div>
+                <h3>${Store.currentUser.name}</h3>
+                <div style="color:var(--text-muted);">${Store.currentUser.email}</div>
+                <div style="margin-top:8px;"><span class="badge badge-primary">${Store.currentUser.role.toUpperCase()}</span></div>
+            </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; background:var(--bg-dark); padding:16px; border-radius:12px; margin-bottom:16px;">
+                <div><i class="fas fa-coins" style="color:var(--warning);"></i> Saldo Koin</div>
+                <div style="font-size:20px; font-weight:700; color:var(--warning);">${Store.currentUser.coins || 0}</div>
+            </div>
+            <button class="btn btn-danger" style="width:100%;" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Keluar
+            </button>
+        </div>
+    `;
+}
 
-            updateActiveNav(page) {
-                document.querySelectorAll('.nav-btn').forEach(btn => {
-                    btn.classList.remove('nav-active');
-                });
-                document.querySelectorAll(`.nav-btn[data-page="${page}"]`).forEach(btn => {
-                    btn.classList.add('nav-active');
-                });
-            }
-        }
+// ==================== UTILS ====================
+function updateUser(user) {
+    const users = Store.get('users');
+    const idx = users.findIndex(u => u.id === user.id);
+    if (idx !== -1) {
+        users[idx] = user;
+        Store.set('users', users);
+    }
+}
 
-        // Initialize app
-        const app = new MarketApp();
-        window.app = app;
-    </script>
+// Seed demo data if empty
+(function seedData() {
+    const products = Store.get('products');
+    if (products.length === 0) {
+        Store.set('products', [
+            { id: '1', shopId: 'admin', name: 'Akun ML Epic', game: 'Mobile Legends', type: 'Akun', price: 150000, stock: 5, description: 'Akun Mobile Legends dengan skin epic lengkap', sold: 12, createdAt: new Date().toISOString() },
+            { id: '2', shopId: 'admin', name: 'Diamond Free Fire 1000', game: 'Free Fire', type: 'Item', price: 50000, stock: 100, description: 'Top up diamond free fire murah', sold: 45, createdAt: new Date().toISOString() },
+            { id: '3', shopId: 'admin', name: 'Jasa Joki Rank', game: 'Mobile Legends', type: 'Jasa', price: 75000, stock: 10, description: 'Jasa joki rank epic ke legend', sold: 8, createdAt: new Date().toISOString() }
+        ]);
+    }
+})();
+</script>
 </body>
-</html>
+</html>'''
+
+# Write to file
+with open('/mnt/agents/output/3market_games.html', 'w', encoding='utf-8') as f:
+    f.write(html_content)
+
+print("File berhasil dibuat! Ukuran:", len(html_content), "karakter")
